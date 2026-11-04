@@ -81,7 +81,7 @@
     if (!selectedFile) return;
     try {
       const {bitrate} = settings('encode');
-      const seconds = (Math.max(8, Math.ceil(bitrate / 8)) + selectedFile.size + 12) * 8 / bitrate;
+      const seconds = (Math.max(8, Math.ceil(bitrate / 8)) + selectedFile.size + new TextEncoder().encode(selectedFile.name).length + 14) * 8 / bitrate;
       const size = 44 + Math.round(seconds * 48000) * 2;
       $('encode-estimate').textContent = `${formatTime(seconds)} · ${formatSize(size)}`;
       if (size > MAX_WAV) throw Error('WAV exceeds 512 MiB. Increase the bitrate or use a smaller file.');
@@ -201,6 +201,7 @@
         else if (message.type === 'receive-reset') { $('decode-progress-area').hidden = true; $('received-size').textContent = '—'; $('received-crc').textContent = '—'; $('receive-tag').textContent = 'LIVE'; status('decode', message.message); }
         else if (message.type === 'decoded') {
           receivedURL = URL.createObjectURL(new Blob([message.buffer], {type: 'application/octet-stream'}));
+          $('file-download').download = message.filename || 'received.bin';
           $('file-download').href = receivedURL; $('file-download').hidden = false; $('decode-empty').hidden = true;
           $('received-size').textContent = formatSize(message.size); $('received-crc').textContent = '✓';
           stopMic(); $('receive-tag').textContent = 'RECEIVED'; progress('decode', 100);

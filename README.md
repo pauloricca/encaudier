@@ -11,8 +11,8 @@ including when opened directly from disk.
 
 The **listen** tab listens through the microphone after you click Start and
 grant access. It detects the frame, shows receiving progress, checks CRC32, and
-offers the original bytes as `received.bin`. Microphone capture stops after a
-successful reception, when you click Stop, or when you leave the listen tab.
+offers the original bytes with their transmitted filename (or `received.bin` if
+unnamed). Microphone capture stops after a successful reception, when you click Stop, or when you leave the listen tab.
 
 For reliable browser microphone access, serve the page on localhost:
 
@@ -43,6 +43,12 @@ python3 -m pip install -r requirements.txt
 python3 encoder.py ./input.bin --bitrate 100 --output transmission.wav
 python3 decoder.py ./recording.wav --bitrate 100 --output restored.bin
 ```
+
+The encoder transmits the input file's basename, including its extension and
+Unicode characters. Omit `--output` on the decoder to save under that name in the
+current directory; an explicit `--output` takes precedence. Unnamed frames use
+`decoded.bin`. Received names have directory components removed and unsafe
+filename characters replaced.
 
 Both commands print progress percentages to stderr, updating one line in a
 terminal. The decoder's percentage covers audio scanning and frame detection;
@@ -98,14 +104,16 @@ testing with your audio hardware; accepting a setting does not guarantee decodin
 | Field | Format |
 | --- | --- |
 | Preamble | Repeated `0xAA` (`10101010`), at least 64 bits and about one second or longer |
-| Start marker | Four bytes: `D3 91 C5 A7` |
+| Start marker | Four bytes: `D3 91 C5 A8` |
 | File length | Unsigned 32-bit byte count, big-endian |
+| Filename length | Unsigned 16-bit UTF-8 byte count, big-endian |
+| Filename | UTF-8 basename (may be empty; maximum 65,535 bytes) |
 | File | Original bytes, most significant bit first |
-| Checksum | CRC32 of the length field and file bytes, unsigned 32-bit big-endian |
+| Checksum | CRC32 of both length fields, filename bytes, and file bytes, unsigned 32-bit big-endian |
 
 The length identifies the end; no end marker or escaping of file contents is
-needed. CRC detects corruption; it does not repair it. Existing WAV files from
-the earlier unframed encoder must be regenerated.
+needed. CRC detects corruption; it does not repair it. The filename format uses a new start marker; both sender and receiver must be
+updated, and WAV files from earlier encoders must be regenerated.
 
 The decoder searches the recording for the preamble and start marker, estimates
 the signal level and bit alignment, and checks the CRC before writing output.

@@ -1,3 +1,5 @@
+import struct
+import zlib
 import subprocess
 import sys
 import tempfile
@@ -9,7 +11,7 @@ import numpy as np
 
 from decoder import decode
 from encoder import generate
-from protocol import AMPLITUDE, SAMPLE_RATE, frame
+from protocol import AMPLITUDE, SAMPLE_RATE, frame, safe_filename
 
 
 class ModemTests(unittest.TestCase):
@@ -27,6 +29,50 @@ class ModemTests(unittest.TestCase):
         with wave.open(str(self.audio), "wb") as wav:
             wav.setparams((channels, 2, rate, 0, "NONE", "not compressed"))
             wav.writeframes(np.clip(samples, -32768, 32767).astype("<i2").tobytes())
+
+    def test_filename_round_trip_and_crc(self):
+        data = b"named file contents"
+        generate(data, 9600, self.audio, frequency=12000, filename="résumé 🐈.txt")
+        self.assertEqual(decode(self.audio, 9600, frequency=12000, with_filename=True),
+                         (data, "résumé 🐈.txt"))
+        generate(data, 9600, self.audio, frequency=12000)
+        self.assertEqual(decode(self.audio, 9600, frequency=12000, with_filename=True),
+                         (data, "decoded.bin"))
+        packet = frame(data, 100, "example.txt")[17:]
+        self.assertEqual(struct.unpack(">IH", packet[:6]), (len(data), 11))
+        self.assertEqual(zlib.crc32(packet[:-4]), struct.unpack(">I", packet[-4:])[0])
+        # Alter a filename bit in the audio: metadata must pass the same CRC as the file.
+        generate(data, 100, self.audio, filename="example.txt")
+        samples = self.read_audio()
+        name_bit = (13 + 4 + 6) * 8 + 1  # 'e' has its second bit set.
+        samples[name_bit * 480:(name_bit + 1) * 480] = 0
+        self.write_audio(samples)
+        with self.assertRaisesRegex(ValueError, "valid CRC"):
+            decode(self.audio, 100)
+
+    def test_safe_filename(self):
+        for name, expected in (("../../secret.txt", "secret.txt"),
+                               (r"C:\folder\file.txt", "file.txt"),
+                               ("/tmp/", "decoded.bin"), ("..", "decoded.bin"),
+                               ("bad\x00:name?.txt", "bad__name_.txt")):
+            self.assertEqual(safe_filename(name), expected)
+        with self.assertRaisesRegex(ValueError, "Filename exceeds"):
+            frame(b"", 100, "é" * 32768)
+
+    def test_cli_uses_transmitted_filename(self):
+        root = Path(__file__).resolve().parent
+        source = Path(self.temp.name) / "résumé 🐈.txt"
+        source.write_bytes(b"keep my filename")
+        encoded = subprocess.run([sys.executable, str(root / "encoder.py"), str(source),
+                                  "--output", str(self.audio), "--bitrate", "9600",
+                                  "--frequency", "12000"], capture_output=True, text=True)
+        self.assertEqual(encoded.returncode, 0, encoded.stderr)
+        source.unlink()
+        decoded = subprocess.run([sys.executable, str(root / "decoder.py"), str(self.audio),
+                                  "--bitrate", "9600", "--frequency", "12000"],
+                                 cwd=self.temp.name, capture_output=True, text=True)
+        self.assertEqual(decoded.returncode, 0, decoded.stderr)
+        self.assertEqual(source.read_bytes(), b"keep my filename")
 
     def test_round_trips(self):
         for data in (b"", b"\x00\xff", bytes(range(256))):

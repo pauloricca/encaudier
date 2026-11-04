@@ -8,9 +8,9 @@ from progress import Progress
 from protocol import AMPLITUDE, FREQUENCY, MAX_BITRATE, SAMPLE_RATE, frame, validate_frequency
 
 
-def generate(data, bitrate, output, frequency=FREQUENCY, progress=None):
+def generate(data, bitrate, output, frequency=FREQUENCY, progress=None, filename=""):
     validate_frequency(frequency, SAMPLE_RATE)
-    bits = np.unpackbits(np.frombuffer(frame(data, bitrate), dtype=np.uint8))
+    bits = np.unpackbits(np.frombuffer(frame(data, bitrate, filename), dtype=np.uint8))
     samples_per_bit = SAMPLE_RATE / bitrate
     total_samples = round(len(bits) * samples_per_bit)
     with wave.open(str(output), "wb") as wav:
@@ -38,7 +38,7 @@ def main():
     try:
         with Progress("Encoding") as progress:
             duration = generate(args.file.read_bytes(), args.bitrate, args.output,
-                                args.frequency, progress=progress)
+                                args.frequency, progress=progress, filename=args.file.name)
     except (OSError, wave.Error, ValueError) as exc:
         parser.error(str(exc))
     print(f"Created {args.output} ({duration:.2f}s)")

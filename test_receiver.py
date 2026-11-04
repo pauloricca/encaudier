@@ -1,5 +1,6 @@
 import contextlib
 import io
+import os
 import sys
 import tempfile
 import types
@@ -133,6 +134,23 @@ class ReceiverTests(unittest.TestCase):
         self.assertIn("Listening to microphone", messages.getvalue())
         self.assertIn("CRC32 verified", messages.getvalue())
         self.assertIn("100%", messages.getvalue())
+
+    def test_microphone_cli_uses_transmitted_filename(self):
+        generate(b"named microphone file", 9600, self.path, frequency=12000,
+                 filename="../résumé.txt")
+        with wave.open(str(self.path), "rb") as wav:
+            samples = np.frombuffer(wav.readframes(wav.getnframes()), dtype="<i2")
+        module = self.fake_audio_module(np.r_[samples, np.zeros(4800)])
+        argv = ["decoder.py", "--bitrate", "9600", "--frequency", "12000"]
+        previous = Path.cwd()
+        try:
+            os.chdir(self.temp.name)
+            with patch.dict(sys.modules, sounddevice=module), patch.object(sys, "argv", argv):
+                with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
+                    self.assertIsNone(main())
+            self.assertEqual(Path("résumé.txt").read_bytes(), b"named microphone file")
+        finally:
+            os.chdir(previous)
 
     def test_microphone_overflow_resets_reception(self):
         partial = self.audio(b"incomplete")[:60000]

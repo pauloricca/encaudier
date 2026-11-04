@@ -6,7 +6,7 @@ import zlib
 
 import numpy as np
 
-from protocol import FREQUENCY, MARKER, SAMPLE_RATE, validate_frequency
+from protocol import FREQUENCY, MARKER, SAMPLE_RATE, safe_filename, validate_frequency
 
 OVERSAMPLE = 8
 MAX_BYTES = 64 * 1024 * 1024
@@ -90,6 +90,8 @@ class IncomingFrame:
         self.pending = np.empty(0, dtype=bool)
         self.data = bytearray()
         self.size = None
+        self.name_size = None
+        self.filename = None
         self.error = None
 
     def feed(self, levels, offset):
@@ -102,27 +104,33 @@ class IncomingFrame:
         whole = len(bits) // 8 * 8
         self.data.extend(np.packbits(bits[:whole]).tobytes())
         self.pending = bits[whole:]
-        if self.size is None and len(self.data) >= 4:
-            self.size = struct.unpack(">I", self.data[:4])[0]
+        if self.size is None and len(self.data) >= 6:
+            self.size, self.name_size = struct.unpack(">IH", self.data[:6])
             if self.size > self.max_bytes:
                 self.error = "File length exceeds the microphone receive limit"
                 return None
-        if self.size is not None and len(self.data) >= self.size + 8:
-            packet = self.data[:self.size + 8]
+        if self.size is not None and len(self.data) >= self.size + self.name_size + 10:
+            packet = self.data[:self.size + self.name_size + 10]
             if zlib.crc32(packet[:-4]) == struct.unpack(">I", packet[-4:])[0]:
-                return bytes(packet[4:-4])
+                try:
+                    self.filename = safe_filename(packet[6:6 + self.name_size].decode("utf-8"))
+                except UnicodeDecodeError:
+                    self.error = "Invalid UTF-8 filename"
+                    return None
+                return bytes(packet[6 + self.name_size:-4])
             self.error = "CRC check failed"
         return None
 
 
 class LiveDecoder:
-    """Feed mono PCM blocks; returns bytes only when an entire frame passes CRC."""
+    """Feed PCM blocks; return verified bytes (or bytes and name with with_filename)."""
 
     def __init__(self, bitrate, frequency=FREQUENCY, threshold=None, sample_rate=SAMPLE_RATE,
-                 max_bytes=MAX_BYTES, progress=None, status=None):
+                 max_bytes=MAX_BYTES, progress=None, status=None, with_filename=False):
         self.tones = ToneStream(bitrate, frequency, sample_rate)
         self.threshold = threshold
         self.max_bytes = max_bytes
+        self.with_filename = with_filename
         self.progress = progress or (lambda percent: None)
         self.status = status or (lambda message: None)
         self.history = np.empty(0)
@@ -156,7 +164,7 @@ class LiveDecoder:
             payload = packet.feed(self.history, self.offset)
             if payload is not None:
                 self.progress(99)
-                return payload
+                return (payload, packet.filename) if self.with_filename else payload
             if packet.error:
                 errors.append(packet.error)
                 continue
@@ -164,7 +172,7 @@ class LiveDecoder:
                 if packet.start > self.last_header + 2 * OVERSAMPLE:
                     self.status(f"Receiving {packet.size} bytes...")
                     self.last_header = packet.start
-                self.progress(min(99, 100 * max(0, len(packet.data) - 4) / max(1, packet.size + 4)))
+                self.progress(min(99, 100 * max(0, len(packet.data) - 6) / max(1, packet.size + packet.name_size + 4)))
             receiving.append(packet)
         self.active = receiving
         if errors and not self.active:
@@ -179,7 +187,7 @@ class LiveDecoder:
 
 
 def listen(bitrate, frequency=FREQUENCY, threshold=None, sample_rate=SAMPLE_RATE,
-           device=None, max_bytes=MAX_BYTES, progress=None):
+           device=None, max_bytes=MAX_BYTES, progress=None, with_filename=False):
     """Listen until one valid frame arrives. Ctrl+C stops without saving a file."""
     try:
         import sounddevice as sd
@@ -193,7 +201,8 @@ def listen(bitrate, frequency=FREQUENCY, threshold=None, sample_rate=SAMPLE_RATE
             progress.restart()
 
     def receiver():
-        return LiveDecoder(bitrate, frequency, threshold, sample_rate, max_bytes, progress, announce)
+        return LiveDecoder(bitrate, frequency, threshold, sample_rate, max_bytes, progress,
+                           announce, with_filename=with_filename)
 
     live = receiver()
     blocksize = max(1, sample_rate // 10)
