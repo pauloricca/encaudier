@@ -227,17 +227,19 @@
   });
   $('stop-listening').addEventListener('click', () => { stopMic(); status('decode', 'stopped'); });
   function activateTab(mode) {
-    for (const name of ['encode', 'decode']) {
+    for (const name of ['encode', 'decode', 'show', 'scan']) {
       const selected = name === mode; $(`${name}-tab`).setAttribute('aria-selected', String(selected)); $(`${name}-tab`).tabIndex = selected ? 0 : -1; $(`${name}-panel`).hidden = !selected;
     }
     $('player').pause();
-    if (mode === 'encode' && mic) { stopMic(); status('decode', ''); }
+    window.dispatchEvent(new CustomEvent('encaudier-tab', {detail: mode}));
+    if (mode !== 'decode' && mic) { stopMic(); status('decode', ''); }
   }
-  for (const mode of ['encode', 'decode']) {
+  for (const mode of ['encode', 'decode', 'show', 'scan']) {
     $(`${mode}-tab`).addEventListener('click', () => activateTab(mode));
     $(`${mode}-tab`).addEventListener('keydown', event => {
       if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
-        event.preventDefault(); const next = event.key === 'Home' ? 'encode' : event.key === 'End' ? 'decode' : mode === 'encode' ? 'decode' : 'encode';
+        event.preventDefault(); const modes = ['encode', 'decode', 'show', 'scan'];
+        const next = event.key === 'Home' ? modes[0] : event.key === 'End' ? modes.at(-1) : modes[(modes.indexOf(mode) + (event.key === 'ArrowRight' ? 1 : 3)) % modes.length];
         activateTab(next); $(`${next}-tab`).focus();
       }
     });

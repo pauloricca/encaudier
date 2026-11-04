@@ -1,6 +1,6 @@
 # Encaudier
 
-Transmit a file as an on/off audio tone, then recover it from a WAV recording.
+Transmit a file as an on/off audio tone, or through an animated black-and-white grid in the browser.
 
 ## Browser app
 
@@ -14,14 +14,14 @@ grant access. It detects the frame, shows receiving progress, checks CRC32, and
 offers the original bytes with their transmitted filename (or `received.bin` if
 unnamed). Microphone capture stops after a successful reception, when you click Stop, or when you leave the listen tab.
 
-For reliable browser microphone access, serve the page on localhost:
+For browser microphone or camera access, serve the page on localhost:
 
 ```sh
 python3 -m http.server 8000 --bind 127.0.0.1 --directory web
 ```
 
 Open `http://localhost:8000` in a modern browser. HTTPS also supports microphone
-access. The local server only serves the page: file data and microphone audio
+and camera access. The local server only serves the page: file data, camera video, and microphone audio
 stay in the browser. There are no uploads, external scripts, fonts, analytics,
 or network calls from the app. A content security policy blocks network
 connections; workers and audio use local blobs.
@@ -32,9 +32,49 @@ WAVs to 512 MiB and received files to 64 MiB to control memory use. Reception ha
 the same clock-drift and audio-channel limitations as the Python decoder.
 
 The bundled HTML has no runtime dependencies or build requirement. After editing
-`web/app.js`, `web/modem-worker.js`, or `web/index.template.html`, rebuild it with
+`web/app.js`, `web/modem-worker.js`, `web/visual-codec.js`,
+`web/visual-app.js`, or `web/index.template.html`, rebuild it with
 `python3 web/build.py`. Browser/Python compatibility tests run with
 `node --test web/test-modem.mjs` (Node.js and the Python requirements below).
+
+## Screen-to-camera transfer (web only)
+
+On the sending computer, open **show**, choose a file, and click **show file**.
+On the receiving computer, open **scan**, click **start camera**, and allow camera
+access. Aim at the sending screen with all four corner markers in view. Use
+**expand** on the sender to make the grid larger. After reception, download the
+original file with its filename and a verified checksum. Camera capture stops
+automatically on success, when stopped, or when leaving the scan tab.
+
+The sender has two numeric settings, styled like the audio controls:
+
+| Setting | Default | Range |
+| --- | --- | --- |
+| Density (boxes per side) | 48 × 48 | 32–96 |
+| Rate (frames per second) | 15 fps | 1–30 fps |
+
+The receiver reads the density from a fixed stripe in the grid and automatically
+finds the corner markers, orientation, and perspective. No matching receiver
+settings or manual corner clicks are needed. Density is locked while transmitting;
+stop to change it. Rate can change during transmission. The arrow resets both
+settings to their defaults. An estimate shows payload capacity before retries.
+Higher density needs a larger, sharper camera image; higher frame rates need a
+shorter exposure and faster processing. Lower either setting if reception stalls.
+
+Frames loop continuously. The receiver accepts numbered chunks in any order,
+ignores duplicates, and collects missed chunks on later loops. Every frame has a
+CRC32 to reject corruption and mixed frames from screen/camera timing; a second
+CRC32 covers the complete filename and file. There is no return channel or error
+correction: stop the sender after the receiver finishes. To receive a different
+file, stop and restart the camera. Visual files are limited to 16 MiB. Screen glare,
+blur, rolling shutter, and camera resolution affect practical speed; start with a
+small file. The animation flashes black and white, with a notice before starting.
+
+The optical protocol is separate from the Python/audio protocol. It runs entirely
+in the page, without external libraries or network calls. Run its synthetic camera
+and packet tests with `node --test web/test-visual.mjs`; these cover perspective,
+rotation, mirroring, blur, noise, density detection, missed frames, corruption,
+and complete file recovery. Real screen-to-camera performance needs hardware testing.
 
 ## Python scripts
 
