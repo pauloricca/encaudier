@@ -1,0 +1,35 @@
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local dependencies and configuration
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+
+# Generated audio, recovered files, and browser QA screenshots
+*.wav
+/decoded.bin
+/received.bin
+/restored.bin
+/web/preview.png
+
+# OS and editor artifacts
+.DS_Store
+._*
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Keep web/index.html tracked: it is the standalone browser app.

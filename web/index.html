@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; worker-src blob:; media-src blob:; connect-src blob:; img-src data:; base-uri 'none'; form-action 'none'">
+<title>·</title>
+<style>
+:root{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#30332e;background:#f7f7f3;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button,input,a{font:inherit}button,a,input{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.3}a{color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,label:focus-visible{outline:2px solid #929b86;outline-offset:5px}[hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.shell{max-width:456px;margin:0 auto;padding:76px 24px 48px}.tabs{display:flex;justify-content:center;gap:38px;margin-bottom:42px}.tab{border:0;background:none;color:#a1a59b;padding:9px 1px;font-size:14px;position:relative}.tab[aria-selected=true]{color:#30332e}.tab[aria-selected=true]:after{content:"";position:absolute;bottom:0;left:0;right:0;height:1px;background:#30332e}.dropzone{border:1px dashed #d2d6c9;border-radius:10px;min-height:174px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;padding:24px;cursor:pointer;transition:background .15s,border-color .15s}.dropzone:hover,.dropzone.dragover{background:#eeefe7;border-color:#8f9882}.plus{font-size:32px;line-height:1;font-weight:200;color:#a9af9e}.drop-title{font-size:13px;overflow-wrap:anywhere;max-width:100%}.drop-title:empty,.drop-hint:empty{display:none}.drop-hint{color:#969c8c;font:11px ui-monospace,monospace}.fields{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;margin-top:24px;align-items:center}.input-wrap{position:relative}.input-wrap input{width:100%;padding:12px 46px 12px 10px;border:0;border-bottom:1px solid #d8dccf;border-radius:0;background:none;color:#51594a;font:13px ui-monospace,monospace;appearance:textfield}.input-wrap input::-webkit-inner-spin-button{appearance:none}.unit{position:absolute;right:5px;top:14px;color:#999f90;font-size:10px;pointer-events:none}.preset{border:0;background:none;color:#8c957e;padding:10px;font-size:17px}.estimate{margin:16px 0 0;color:#9a9f90;font:10px ui-monospace,monospace;min-height:0}.estimate:empty{display:none}.actions{display:flex;gap:10px;margin-top:26px}.button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border:1px solid #dfe2d6;border-radius:7px;padding:9px 17px;background:transparent;color:#626c57;font-size:13px;text-decoration:none}.primary{flex:1;background:#30392e;color:#f4f6ee;border-color:#30392e}.primary:hover:not(:disabled){background:#414c3c}.secondary{background:none}.status{margin:15px 0 0;color:#9a9f90;font-size:11px;line-height:1.6;overflow-wrap:anywhere}.status:empty{display:none}.status.error{color:#a9513e}.status.success{color:#819072}.progress-area{margin-top:18px}.progress-label{display:flex;justify-content:flex-end;font:10px ui-monospace,monospace;color:#939b86;margin-bottom:7px}progress{appearance:none;width:100%;height:2px;border:0;display:block;background:#e4e7db}progress::-webkit-progress-bar{background:#e4e7db}progress::-webkit-progress-value{background:#849475}progress::-moz-progress-bar{background:#849475}.output{margin-top:30px}.wave{background:#2a3028;border-radius:8px;overflow:hidden;padding:14px}.wave canvas{display:block;width:100%;height:78px}.output-meta{display:flex;justify-content:space-between;margin:12px 1px;color:#929a86;font:11px ui-monospace,monospace}.player-area audio{display:block;width:100%;height:36px;margin-top:18px}.download{display:flex;justify-content:center;width:42px;height:38px;min-height:0;margin:15px auto 0;padding:7px;font-size:18px;border:0}.mic-state{display:flex;justify-content:center;margin:36px 0}.dot{width:5px;height:5px;border-radius:50%;background:#d7dccd}.mic-state.live .dot{background:#7e926d;box-shadow:0 0 0 5px #7e926d12;animation:breathe 1.5s infinite}#decode-panel .actions{margin-top:24px}@keyframes breathe{50%{box-shadow:0 0 0 8px #7e926d08}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}@media(max-width:420px){.shell{padding-top:44px}.tabs{margin-bottom:32px}.fields{gap:8px}.dropzone{min-height:155px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<div class="tabs" role="tablist" aria-label="Mode">
+<button class="tab" id="encode-tab" role="tab" aria-selected="true" aria-controls="encode-panel" tabindex="0">play</button>
+<button class="tab" id="decode-tab" role="tab" aria-selected="false" aria-controls="decode-panel" tabindex="-1">listen</button>
+</div>
+<section id="encode-panel" role="tabpanel" aria-labelledby="encode-tab">
+<input type="file" id="file-input" class="sr-only" tabindex="-1">
+<label for="file-input" class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose or drop a file"><span class="plus" aria-hidden="true">+</span><span class="drop-title" id="file-name"></span><span class="drop-hint" id="file-detail"></span><span class="sr-only" id="choose-label">Choose file</span></label>
+<div class="fields">
+<div class="input-wrap"><input id="encode-bitrate" aria-label="Bitrate" type="number" min="1" max="9600" step="1" value="100" inputmode="numeric"><span class="unit" aria-hidden="true">bit/s</span></div>
+<div class="input-wrap"><input id="encode-frequency" aria-label="Carrier frequency in Hz" type="number" min="0.01" max="23999.99" step="any" value="2000" inputmode="decimal"><span class="unit" aria-hidden="true">Hz</span></div>
+<button class="preset" id="encode-preset" aria-label="Use 9,600 bits per second and 12 kHz">↗</button>
+</div>
+<p class="estimate" id="encode-estimate"></p>
+<div class="actions"><button class="button primary" id="generate" aria-label="Generate WAV" disabled>→</button><button class="button secondary" id="cancel-encode" hidden aria-label="Cancel">×</button></div>
+<div class="progress-area" id="encode-progress-area" hidden><div class="progress-label"><span id="encode-percent">0%</span></div><progress id="encode-progress" max="100" value="0" aria-label="Encoding progress"></progress></div>
+<p class="status" id="encode-status" role="status" aria-live="polite"></p>
+<div class="output" id="encode-output" hidden><div class="wave"><canvas id="encode-wave" width="800" height="230" aria-label="Audio waveform"></canvas></div><span id="wave-end" class="sr-only"></span><div class="output-meta"><span id="wav-duration" aria-label="Duration"></span><span id="wav-size" aria-label="WAV size"></span></div><div class="player-area"><span id="encode-empty" hidden></span><audio id="player" controls preload="metadata" hidden aria-label="Play"></audio><a class="button download" id="wav-download" hidden aria-label="Download WAV">↓</a></div></div>
+</section>
+<section id="decode-panel" role="tabpanel" aria-labelledby="decode-tab" hidden>
+<div class="fields">
+<div class="input-wrap"><input id="decode-bitrate" aria-label="Bitrate" type="number" min="1" max="9600" step="1" value="100" inputmode="numeric"><span class="unit" aria-hidden="true">bit/s</span></div>
+<div class="input-wrap"><input id="decode-frequency" aria-label="Carrier frequency in Hz" type="number" min="0.01" max="23999.99" step="any" value="2000" inputmode="decimal"><span class="unit" aria-hidden="true">Hz</span></div>
+<button class="preset" id="decode-preset" aria-label="Use 9,600 bits per second and 12 kHz">↗</button>
+</div>
+<div class="mic-state" id="mic-state"><span class="dot" aria-hidden="true"></span><span id="mic-label" class="sr-only">Microphone off</span></div>
+<div class="actions"><button class="button primary" id="start-listening">listen</button><button class="button secondary" id="stop-listening" hidden>stop</button></div>
+<div class="progress-area" id="decode-progress-area" hidden><div class="progress-label"><span id="decode-percent">0%</span></div><progress id="decode-progress" max="100" value="0" aria-label="Receiving progress"></progress></div>
+<p class="status" id="decode-status" role="status" aria-live="polite"></p>
+<div class="output" id="decode-output" hidden><span id="receive-tag" class="sr-only"></span><div class="wave"><canvas id="decode-wave" width="800" height="230" aria-label="Microphone waveform"></canvas></div><span id="input-rate" class="sr-only"></span><div class="output-meta"><span id="received-size" aria-label="File size"></span><span id="received-crc" aria-label="Checksum"></span></div><div class="player-area"><span id="decode-empty" hidden></span><a class="button download" id="file-download" download="received.bin" hidden aria-label="Download received file">↓</a></div></div>
+</section>
+</main>
+<script id="worker-source" type="text/plain">
+/* Runs entirely in a local Web Worker. No network APIs are used. */
+const RATE = 48000, AMPLITUDE = 16000, OVERSAMPLE = 8;
+const SYNC = [0xd3, 0x91, 0xc5, 0xa7];
+const FILTER_WEIGHTS = [1, 2, 3, 4, 5, 5, 5, 5, 4, 3, 2, 1];
+const MAX_WAV = 512 * 1024 * 1024, MAX_RECEIVE = 64 * 1024 * 1024;
+const crcTable = Uint32Array.from({length: 256}, (_, n) => {
+  for (let i = 0; i < 8; i++) n = n & 1 ? 0xedb88320 ^ (n >>> 1) : n >>> 1;
+  return n >>> 0;
+});
+function crc32(bytes, start = 0, end = bytes.length) {
+  let crc = 0xffffffff;
+  for (let i = start; i < end; i++) crc = crcTable[(crc ^ bytes[i]) & 255] ^ (crc >>> 8);
+  return (crc ^ 0xffffffff) >>> 0;
+}
+function validate(bitrate, frequency, rate = RATE) {
+  if (!Number.isInteger(bitrate) || bitrate < 1 || bitrate > 9600) throw Error('Bitrate must be an integer from 1 to 9,600.');
+  if (!Number.isFinite(frequency) || frequency <= 0 || frequency >= rate / 2) throw Error(`Carrier must be above 0 and below ${rate / 2} Hz.`);
+  if (bitrate > rate) throw Error('Bitrate exceeds the microphone sample rate.');
+}
+function roundEven(x) {
+  const floor = Math.floor(x);
+  return x - floor === 0.5 ? floor + (floor % 2) : Math.round(x);
+}
+async function encode(message) {
+  const {bitrate, frequency} = message;
+  validate(bitrate, frequency);
+  const size = message.bytes ? message.bytes.length : message.file.size;
+  const preamble = Math.max(8, Math.ceil(bitrate / 8));
+  const samplesPerBit = RATE / bitrate;
+  const total = roundEven((preamble + size + 12) * 8 * samplesPerBit);
+  if (44 + total * 2 > MAX_WAV) throw Error('The WAV would exceed the 512 MiB browser limit. Increase the bitrate or choose a smaller file.');
+  const data = message.bytes || new Uint8Array(await message.file.arrayBuffer());
+  const frame = new Uint8Array(preamble + data.length + 12);
+  const frameView = new DataView(frame.buffer);
+  frame.fill(0xaa, 0, preamble);
+  frame.set(SYNC, preamble);
+  frameView.setUint32(preamble + 4, data.length);
+  frame.set(data, preamble + 8);
+  frameView.setUint32(frame.length - 4, crc32(frame, preamble + 4, frame.length - 4));
+  const buffer = new ArrayBuffer(44 + total * 2), wav = new DataView(buffer);
+  const text = (offset, value) => [...value].forEach((char, i) => wav.setUint8(offset + i, char.charCodeAt(0)));
+  text(0, 'RIFF'); wav.setUint32(4, 36 + total * 2, true); text(8, 'WAVE'); text(12, 'fmt ');
+  wav.setUint32(16, 16, true); wav.setUint16(20, 1, true); wav.setUint16(22, 1, true);
+  wav.setUint32(24, RATE, true); wav.setUint32(28, RATE * 2, true);
+  wav.setUint16(32, 2, true); wav.setUint16(34, 16, true); text(36, 'data'); wav.setUint32(40, total * 2, true);
+  let last = -1;
+  for (let start = 0; start < total; start += 65536) {
+    const end = Math.min(start + 65536, total);
+    for (let n = start; n < end; n++) {
+      const bit = Math.min(Math.floor(n / samplesPerBit), frame.length * 8 - 1);
+      const on = (frame[bit >>> 3] >>> (7 - bit % 8)) & 1;
+      wav.setInt16(44 + n * 2, on ? Math.trunc(AMPLITUDE * Math.sin(2 * Math.PI * frequency * n / RATE)) : 0, true);
+    }
+    const percent = Math.floor(100 * end / total);
+    if (percent !== last) { postMessage({type: 'encode-progress', percent}); last = percent; }
+  }
+  postMessage({type: 'encoded', buffer, duration: total / RATE}, [buffer]);
+}
+const marker = [...Array(8).fill(0xaa), ...SYNC].flatMap(byte => Array.from({length: 8}, (_, i) => (byte >> (7 - i)) & 1));
+const markerMean = marker.reduce((a, b) => a + b, 0) / marker.length;
+const pattern = marker.map(bit => bit - markerMean);
+const patternEnergy = pattern.reduce((sum, bit) => sum + bit * bit, 0);
+function median(values) {
+  values.sort((a, b) => a - b);
+  const i = Math.floor(values.length / 2);
+  return values.length % 2 ? values[i] : (values[i - 1] + values[i]) / 2;
+}
+class Packet {
+  constructor(start, threshold) {
+    this.start = this.next = start; this.threshold = threshold;
+    this.bits = this.byte = this.length = 0; this.bytes = new Uint8Array(1024); this.size = null; this.error = null;
+  }
+  feed(level, index) {
+    if (index !== this.next) return null;
+    this.next += OVERSAMPLE;
+    this.byte = (this.byte << 1) | (level > this.threshold ? 1 : 0);
+    if (++this.bits < 8) return null;
+    if (this.length === this.bytes.length) {
+      const expanded = new Uint8Array(Math.min(this.bytes.length * 2, (this.size ?? MAX_RECEIVE) + 8));
+      expanded.set(this.bytes); this.bytes = expanded;
+    }
+    this.bytes[this.length++] = this.byte; this.bits = this.byte = 0;
+    if (this.length === 4) {
+      this.size = ((this.bytes[0] * 0x1000000) + (this.bytes[1] << 16) + (this.bytes[2] << 8) + this.bytes[3]) >>> 0;
+      if (this.size > MAX_RECEIVE) this.error = 'File length exceeds the 64 MiB receive limit.';
+    }
+    if (!this.error && this.size !== null && this.length === this.size + 8) {
+      const packet = this.bytes.subarray(0, this.length);
+      const view = new DataView(packet.buffer);
+      if (crc32(packet, 0, packet.length - 4) === view.getUint32(packet.length - 4)) return packet.slice(4, -4);
+      this.error = 'Checksum failed.';
+    }
+    return null;
+  }
+}
+class Receiver {
+  constructor(bitrate, frequency, rate) {
+    validate(bitrate, frequency, rate);
+    this.bitrate = bitrate; this.frequency = frequency; this.rate = rate;
+    this.samplesPerBit = rate / bitrate; this.ratio = OVERSAMPLE / this.samplesPerBit;
+    this.n = this.bin = this.i = this.q = 0;
+    this.ringI = new Float64Array(12); this.ringQ = new Float64Array(12);
+    this.phases = Array.from({length: 8}, () => ({values: new Float64Array(marker.length), count: 0, sum: 0, squares: 0}));
+    this.active = []; this.lastStart = this.lastHeader = -1000; this.lastProgress = -1;
+    this.done = false;
+  }
+  feed(samples) {
+    for (const sample of samples) {
+      if (this.done) break;
+      const angle = 2 * Math.PI * this.frequency * this.n / this.rate;
+      this.i += sample * 32768 * Math.cos(angle);
+      this.q -= sample * 32768 * Math.sin(angle);
+      const nextBin = Math.floor(++this.n * this.ratio);
+      while (this.bin < nextBin) {
+        this.finishBin(); this.bin++; this.i = this.q = 0;
+        if (this.done) break;
+      }
+    }
+  }
+  finishBin() {
+    this.ringI[this.bin % 12] = this.i; this.ringQ[this.bin % 12] = this.q;
+    if (this.bin < 9) return;
+    let i = 0, q = 0;
+    for (let k = 0; k < 12; k++) {
+      const bin = this.bin - 11 + k;
+      if (bin >= 0) { i += this.ringI[bin % 12] * FILTER_WEIGHTS[k]; q += this.ringQ[bin % 12] * FILTER_WEIGHTS[k]; }
+    }
+    this.level(2 * Math.hypot(i, q) / (5 * this.samplesPerBit), this.bin - 9);
+  }
+  level(level, index) {
+    const survivors = []; let error = null;
+    for (const packet of this.active) {
+      const hadHeader = packet.size !== null;
+      const payload = packet.feed(level, index);
+      if (payload !== null) {
+        this.done = true;
+        postMessage({type: 'decoded', buffer: payload.buffer, size: payload.length}, [payload.buffer]);
+        return;
+      }
+      if (packet.error) { error = packet.error; continue; }
+      if (!hadHeader && packet.size !== null && packet.start > this.lastHeader + 16) {
+        this.lastHeader = packet.start;
+        postMessage({type: 'receive-header', size: packet.size});
+      }
+      if (packet.size !== null) {
+        const percent = Math.min(99, Math.floor(100 * Math.max(0, packet.length - 4) / Math.max(1, packet.size + 4)));
+        if (percent > this.lastProgress) { this.lastProgress = percent; postMessage({type: 'receive-progress', percent}); }
+      }
+      survivors.push(packet);
+    }
+    this.active = survivors;
+    if (error && !this.active.length) {
+      this.lastProgress = -1;
+      postMessage({type: 'receive-reset', message: `${error} Listening for another transmission…`});
+    }
+    const phase = this.phases[index % 8], slot = phase.count % marker.length;
+    const old = phase.values[slot]; phase.values[slot] = level;
+    phase.sum += level - old; phase.squares += level * level - old * old; phase.count++;
+    if (phase.count < marker.length) return;
+    const start = phase.count % marker.length;
+    const variance = Math.max(0, phase.squares - phase.sum * phase.sum / marker.length);
+    const scale = Math.sqrt(variance * patternEnergy);
+    if (scale < 1e-6) return;
+    let correlation = 0;
+    for (let k = 0; k < marker.length; k++) correlation += phase.values[(start + k) % marker.length] * pattern[k];
+    if (correlation / scale < 0.85) return;
+    const lowValues = [], highValues = [];
+    for (let k = 0; k < marker.length; k++) (marker[k] ? highValues : lowValues).push(phase.values[(start + k) % marker.length]);
+    const low = median(lowValues), high = median(highValues);
+    if (high - low < 20) return;
+    if (this.active.length >= 16) this.active.shift();
+    this.active.push(new Packet(index + 8, (low + high) / 2));
+    if (index > this.lastStart + 16) {
+      this.lastStart = index;
+      postMessage({type: 'receive-start'});
+    }
+  }
+}
+let receiver = null;
+onmessage = async ({data}) => {
+  try {
+    if (data.type === 'encode') await encode(data);
+    else if (data.type === 'decode-start') {
+      receiver = new Receiver(data.bitrate, data.frequency, data.sampleRate);
+      postMessage({type: 'listening'});
+    } else if (data.type === 'audio' && receiver && !receiver.done) {
+      receiver.feed(data.samples); postMessage({type: 'audio-ack'});
+    }
+  } catch (error) { postMessage({type: 'error', message: error.message || String(error)}); }
+};
+
+</script>
+<script >
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const MAX_WAV = 512 * 1024 * 1024;
+  let selectedFile = null, encoder = null, wavURL = null, receivedURL = null;
+  let mic = null, micGeneration = 0;
+  const formatSize = size => size >= 1048576 ? `${(size / 1048576).toFixed(1)} MiB` : size >= 1024 ? `${(size / 1024).toFixed(1)} KiB` : `${size} B`;
+  const formatTime = seconds => seconds >= 60 ? `${Math.floor(Math.round(seconds) / 60)}:${String(Math.round(seconds) % 60).padStart(2, '0')}` : `${seconds.toFixed(2)} s`;
+  function status(mode, message, kind = '') {
+    const element = $(`${mode}-status`); element.textContent = message; element.className = `status ${kind}`;
+  }
+  function settings(mode, rate = 48000) {
+    const bitrate = Number($(`${mode}-bitrate`).value), frequency = Number($(`${mode}-frequency`).value);
+    if (!Number.isInteger(bitrate) || bitrate < 1 || bitrate > 9600) throw Error('Choose a whole-number bitrate from 1 to 9,600.');
+    if (!Number.isFinite(frequency) || frequency <= 0 || frequency >= rate / 2) throw Error(`Choose a carrier above 0 and below ${rate / 2} Hz.`);
+    return {bitrate, frequency};
+  }
+  function progress(mode, percent) {
+    $(`${mode}-progress-area`).hidden = false;
+    $(`${mode}-progress`).value = percent; $(`${mode}-percent`).textContent = `${percent}%`;
+  }
+  function worker(handler, errorHandler) {
+    const url = URL.createObjectURL(new Blob([$('worker-source').textContent], {type: 'text/javascript'}));
+    let instance;
+    try { instance = new Worker(url); } catch (error) { URL.revokeObjectURL(url); throw error; }
+    instance.onmessage = ({data}) => handler(data);
+    instance.onerror = event => errorHandler(event.message || 'The audio worker could not run.');
+    return {instance, close() { instance.terminate(); URL.revokeObjectURL(url); }};
+  }
+  function canvasBase(canvas) {
+    const ctx = canvas.getContext('2d'), {width, height} = canvas;
+    ctx.clearRect(0, 0, width, height);
+    ctx.strokeStyle = '#39433a'; ctx.lineWidth = 1;
+    for (let x = 0; x <= width; x += width / 12) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); }
+    for (let y = height / 4; y < height; y += height / 4) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
+    return ctx;
+  }
+  function idleWave(canvas) {
+    const ctx = canvasBase(canvas); ctx.strokeStyle = '#879678'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, canvas.height / 2); ctx.lineTo(canvas.width, canvas.height / 2); ctx.stroke();
+  }
+  function wavWave(buffer) {
+    const canvas = $('encode-wave'), ctx = canvasBase(canvas), view = new DataView(buffer);
+    const count = (buffer.byteLength - 44) / 2, columns = 200;
+    ctx.strokeStyle = '#c4ccba'; ctx.lineWidth = 2;
+    for (let x = 0; x < columns; x++) {
+      let peak = 0;
+      for (let k = 0; k < 32; k++) {
+        const sample = Math.min(count - 1, Math.floor((x + k / 32) * count / columns));
+        peak = Math.max(peak, Math.abs(view.getInt16(44 + sample * 2, true)) / 32768);
+      }
+      const height = Math.max(1, peak * canvas.height * 0.8);
+      ctx.beginPath(); ctx.moveTo(x * canvas.width / columns, canvas.height / 2 - height);
+      ctx.lineTo(x * canvas.width / columns, canvas.height / 2 + height); ctx.stroke();
+    }
+  }
+  function liveWave(samples) {
+    const canvas = $('decode-wave'), ctx = canvasBase(canvas); ctx.strokeStyle = '#c4ccba'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let x = 0; x < canvas.width; x++) {
+      const value = samples[Math.floor(x * samples.length / canvas.width)];
+      const y = canvas.height / 2 - value * canvas.height * 0.45;
+      if (x) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    }
+    ctx.stroke();
+  }
+  function clearWav() {
+    $('encode-output').hidden = true;
+    $('player').pause(); $('player').removeAttribute('src'); $('player').load(); $('player').hidden = true;
+    $('wav-download').hidden = true; $('wav-download').removeAttribute('href');
+    $('encode-empty').hidden = false;
+    $('wav-duration').textContent = $('wav-size').textContent = $('wave-end').textContent = '—';
+    if (wavURL) URL.revokeObjectURL(wavURL); wavURL = null;
+    idleWave($('encode-wave'));
+  }
+  function lock(mode, locked) {
+    $(`${mode}-bitrate`).disabled = $(`${mode}-frequency`).disabled = $(`${mode}-preset`).disabled = locked;
+  }
+  function estimate() {
+    $('generate').disabled = !selectedFile || !!encoder;
+    if (!selectedFile) return;
+    try {
+      const {bitrate} = settings('encode');
+      const seconds = (Math.max(8, Math.ceil(bitrate / 8)) + selectedFile.size + 12) * 8 / bitrate;
+      const size = 44 + Math.round(seconds * 48000) * 2;
+      $('encode-estimate').textContent = `${formatTime(seconds)} · ${formatSize(size)}`;
+      if (size > MAX_WAV) throw Error('WAV exceeds 512 MiB. Increase the bitrate or use a smaller file.');
+      if (!encoder) status('encode', '');
+    } catch (error) { $('generate').disabled = true; status('encode', error.message, 'error'); }
+  }
+  function stopEncoding() {
+    if (encoder) encoder.close(); encoder = null; lock('encode', false);
+    $('cancel-encode').hidden = true; $('generate').textContent = '→'; estimate();
+  }
+  function chooseFile(file) {
+    if (!file) return;
+    if (encoder) stopEncoding(); clearWav(); selectedFile = file;
+    $('file-name').textContent = file.name; $('file-detail').textContent = formatSize(file.size);
+    $('choose-label').textContent = 'choose a different file'; $('encode-progress-area').hidden = true; estimate();
+  }
+  $('file-input').addEventListener('change', event => chooseFile(event.target.files[0]));
+  $('dropzone').addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); $('file-input').click(); } });
+  $('dropzone').addEventListener('dragover', event => { event.preventDefault(); $('dropzone').classList.add('dragover'); });
+  $('dropzone').addEventListener('dragleave', event => { if (!$('dropzone').contains(event.relatedTarget)) $('dropzone').classList.remove('dragover'); });
+  $('dropzone').addEventListener('drop', event => {
+    event.preventDefault(); $('dropzone').classList.remove('dragover');
+    if (event.dataTransfer.files.length !== 1) { status('encode', 'Choose one file at a time.', 'error'); return; }
+    chooseFile(event.dataTransfer.files[0]);
+  });
+  window.addEventListener('dragover', event => event.preventDefault());
+  window.addEventListener('drop', event => event.preventDefault());
+  for (const mode of ['encode', 'decode']) {
+    for (const field of ['bitrate', 'frequency']) $(`${mode}-${field}`).addEventListener('input', () => {
+      if (mode === 'encode') { clearWav(); $('encode-progress-area').hidden = true; estimate(); }
+    });
+    $(`${mode}-preset`).addEventListener('click', () => {
+      $(`${mode}-bitrate`).value = 9600; $(`${mode}-frequency`).value = 12000;
+      if (mode === 'encode') { clearWav(); $('encode-progress-area').hidden = true; estimate(); }
+    });
+  }
+  $('generate').addEventListener('click', () => {
+    if (!selectedFile || encoder) return;
+    try {
+      const config = settings('encode'); clearWav(); lock('encode', true);
+      $('generate').disabled = true; $('generate').textContent = '…'; $('cancel-encode').hidden = false;
+      progress('encode', 0); status('encode', '');
+      encoder = worker(message => {
+        if (message.type === 'encode-progress') progress('encode', Math.min(99, message.percent));
+        else if (message.type === 'error') { stopEncoding(); status('encode', message.message, 'error'); }
+        else if (message.type === 'encoded') {
+          $('encode-output').hidden = false;
+          wavWave(message.buffer);
+          wavURL = URL.createObjectURL(new Blob([message.buffer], {type: 'audio/wav'}));
+          $('player').src = wavURL; $('player').hidden = false; $('encode-empty').hidden = true;
+          $('wav-download').href = wavURL; $('wav-download').download = `${selectedFile.name}.wav`; $('wav-download').hidden = false;
+          $('wav-duration').textContent = formatTime(message.duration); $('wave-end').textContent = formatTime(message.duration);
+          $('wav-size').textContent = formatSize(message.buffer.byteLength);
+          stopEncoding(); progress('encode', 100); status('encode', '', 'success');
+        }
+      }, message => { stopEncoding(); status('encode', message, 'error'); });
+      encoder.instance.postMessage({type: 'encode', file: selectedFile, ...config});
+    } catch (error) { stopEncoding(); status('encode', error.message, 'error'); }
+  });
+  $('cancel-encode').addEventListener('click', () => { stopEncoding(); $('encode-progress-area').hidden = true; status('encode', 'cancelled'); });
+  function stopMic() {
+    micGeneration++;
+    const current = mic; mic = null;
+    if (current) {
+      current.stream?.getTracks().forEach(track => track.stop());
+      current.node?.disconnect(); current.source?.disconnect(); current.worker?.close();
+      current.context?.close().catch(() => {});
+    }
+    lock('decode', false); $('start-listening').disabled = false; $('stop-listening').hidden = true;
+    $('mic-state').classList.remove('live'); $('mic-label').textContent = 'Microphone off'; $('receive-tag').textContent = 'MIC OFF';
+  }
+  function micError(message) { stopMic(); status('decode', message, 'error'); }
+  const workletSource = `class Capture extends AudioWorkletProcessor {
+    constructor() { super(); this.buffer = new Float32Array(4096); this.used = 0; }
+    process(inputs, outputs) {
+      for (const output of outputs) for (const channel of output) channel.fill(0);
+      const channel = inputs[0]?.[0];
+      if (channel) for (const sample of channel) {
+        this.buffer[this.used++] = sample;
+        if (this.used === this.buffer.length) { this.port.postMessage(this.buffer, [this.buffer.buffer]); this.buffer = new Float32Array(4096); this.used = 0; }
+      }
+      return true;
+    }
+  } registerProcessor('encaudier-capture', Capture);`;
+  $('start-listening').addEventListener('click', async () => {
+    if (mic) return;
+    const generation = ++micGeneration;
+    try {
+      const config = settings('decode');
+      if (!navigator.mediaDevices?.getUserMedia || !window.AudioContext || !window.isSecureContext) throw Error('Microphone access needs localhost or HTTPS and a browser with Web Audio support.');
+      $('player').pause();
+      mic = {context: new AudioContext({sampleRate: 48000}), pending: 0};
+      const current = mic;
+      lock('decode', true); $('start-listening').disabled = true; $('stop-listening').hidden = false;
+      $('decode-output').hidden = true;
+      $('decode-progress-area').hidden = true; $('received-size').textContent = '—'; $('received-crc').textContent = '—';
+      $('file-download').hidden = true; $('decode-empty').hidden = false;
+      if (receivedURL) URL.revokeObjectURL(receivedURL); receivedURL = null;
+      status('decode', 'allow microphone access…');
+      await current.context.resume();
+      const stream = await navigator.mediaDevices.getUserMedia({audio: {channelCount: 1, sampleRate: 48000, echoCancellation: false, noiseSuppression: false, autoGainControl: false}});
+      if (generation !== micGeneration) { stream.getTracks().forEach(track => track.stop()); return; }
+      current.stream = stream;
+      settings('decode', current.context.sampleRate);
+      if (!current.context.audioWorklet) throw Error('This browser does not support audio worklets. Try a current Chrome, Edge, Firefox, or Safari.');
+      const moduleURL = URL.createObjectURL(new Blob([workletSource], {type: 'text/javascript'}));
+      try { await current.context.audioWorklet.addModule(moduleURL); } finally { URL.revokeObjectURL(moduleURL); }
+      if (generation !== micGeneration) return;
+      current.worker = worker(message => {
+        if (generation !== micGeneration) return;
+        if (message.type === 'audio-ack') current.pending = Math.max(0, current.pending - 1);
+        else if (message.type === 'error') micError(message.message);
+        else if (message.type === 'listening') status('decode', 'listening…');
+        else if (message.type === 'receive-start') { $('receive-tag').textContent = 'SIGNAL'; status('decode', 'receiving…'); }
+        else if (message.type === 'receive-header') { $('received-size').textContent = formatSize(message.size); $('received-crc').textContent = '…'; progress('decode', 0); status('decode', `receiving ${formatSize(message.size)}…`); }
+        else if (message.type === 'receive-progress') progress('decode', message.percent);
+        else if (message.type === 'receive-reset') { $('decode-progress-area').hidden = true; $('received-size').textContent = '—'; $('received-crc').textContent = '—'; $('receive-tag').textContent = 'LIVE'; status('decode', message.message); }
+        else if (message.type === 'decoded') {
+          receivedURL = URL.createObjectURL(new Blob([message.buffer], {type: 'application/octet-stream'}));
+          $('file-download').href = receivedURL; $('file-download').hidden = false; $('decode-empty').hidden = true;
+          $('received-size').textContent = formatSize(message.size); $('received-crc').textContent = '✓';
+          stopMic(); $('receive-tag').textContent = 'RECEIVED'; progress('decode', 100);
+          status('decode', 'received', 'success');
+        }
+      }, micError);
+      current.worker.instance.postMessage({type: 'decode-start', ...config, sampleRate: current.context.sampleRate});
+      current.node = new AudioWorkletNode(current.context, 'encaudier-capture', {numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [1]});
+      current.node.port.onmessage = ({data: samples}) => {
+        if (generation !== micGeneration) return;
+        if (++current.pending > 32) { micError('Audio processing fell behind. Try again with a lower bitrate.'); return; }
+        liveWave(samples); current.worker.instance.postMessage({type: 'audio', samples}, [samples.buffer]);
+      };
+      current.source = current.context.createMediaStreamSource(stream); current.source.connect(current.node); current.node.connect(current.context.destination);
+      stream.getTracks().forEach(track => { track.onended = () => { if (generation === micGeneration) micError('Microphone disconnected. Choose an available input and try again.'); }; });
+      $('decode-output').hidden = false;
+      $('mic-state').classList.add('live'); $('mic-label').textContent = 'Microphone listening'; $('receive-tag').textContent = 'LIVE'; $('input-rate').textContent = `${current.context.sampleRate / 1000} kHz`;
+    } catch (error) {
+      if (generation !== micGeneration) return;
+      const messages = {NotAllowedError: 'Microphone permission was denied. Allow access in your browser settings and try again.', NotFoundError: 'No microphone was found. Connect an input device and try again.', NotReadableError: 'The microphone is unavailable. Check whether another app is using it.'};
+      micError(messages[error.name] || error.message || 'Unable to start the microphone.');
+    }
+  });
+  $('stop-listening').addEventListener('click', () => { stopMic(); status('decode', 'stopped'); });
+  function activateTab(mode) {
+    for (const name of ['encode', 'decode']) {
+      const selected = name === mode; $(`${name}-tab`).setAttribute('aria-selected', String(selected)); $(`${name}-tab`).tabIndex = selected ? 0 : -1; $(`${name}-panel`).hidden = !selected;
+    }
+    $('player').pause();
+    if (mode === 'encode' && mic) { stopMic(); status('decode', ''); }
+  }
+  for (const mode of ['encode', 'decode']) {
+    $(`${mode}-tab`).addEventListener('click', () => activateTab(mode));
+    $(`${mode}-tab`).addEventListener('keydown', event => {
+      if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+        event.preventDefault(); const next = event.key === 'Home' ? 'encode' : event.key === 'End' ? 'decode' : mode === 'encode' ? 'decode' : 'encode';
+        activateTab(next); $(`${next}-tab`).focus();
+      }
+    });
+  }
+  window.addEventListener('pagehide', () => { stopMic(); encoder?.close(); if (wavURL) URL.revokeObjectURL(wavURL); if (receivedURL) URL.revokeObjectURL(receivedURL); });
+  idleWave($('encode-wave')); idleWave($('decode-wave'));
+})();
+
+</script>
+</body></html>

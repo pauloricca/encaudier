@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; worker-src blob:; media-src blob:; connect-src blob:; img-src data:; base-uri 'none'; form-action 'none'">
+<title>·</title>
+<style>
+:root{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#30332e;background:#f7f7f3;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button,input,a{font:inherit}button,a,input{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.3}a{color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,label:focus-visible{outline:2px solid #929b86;outline-offset:5px}[hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.shell{max-width:456px;margin:0 auto;padding:76px 24px 48px}.tabs{display:flex;justify-content:center;gap:38px;margin-bottom:42px}.tab{border:0;background:none;color:#a1a59b;padding:9px 1px;font-size:14px;position:relative}.tab[aria-selected=true]{color:#30332e}.tab[aria-selected=true]:after{content:"";position:absolute;bottom:0;left:0;right:0;height:1px;background:#30332e}.dropzone{border:1px dashed #d2d6c9;border-radius:10px;min-height:174px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;padding:24px;cursor:pointer;transition:background .15s,border-color .15s}.dropzone:hover,.dropzone.dragover{background:#eeefe7;border-color:#8f9882}.plus{font-size:32px;line-height:1;font-weight:200;color:#a9af9e}.drop-title{font-size:13px;overflow-wrap:anywhere;max-width:100%}.drop-title:empty,.drop-hint:empty{display:none}.drop-hint{color:#969c8c;font:11px ui-monospace,monospace}.fields{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;margin-top:24px;align-items:center}.input-wrap{position:relative}.input-wrap input{width:100%;padding:12px 46px 12px 10px;border:0;border-bottom:1px solid #d8dccf;border-radius:0;background:none;color:#51594a;font:13px ui-monospace,monospace;appearance:textfield}.input-wrap input::-webkit-inner-spin-button{appearance:none}.unit{position:absolute;right:5px;top:14px;color:#999f90;font-size:10px;pointer-events:none}.preset{border:0;background:none;color:#8c957e;padding:10px;font-size:17px}.estimate{margin:16px 0 0;color:#9a9f90;font:10px ui-monospace,monospace;min-height:0}.estimate:empty{display:none}.actions{display:flex;gap:10px;margin-top:26px}.button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border:1px solid #dfe2d6;border-radius:7px;padding:9px 17px;background:transparent;color:#626c57;font-size:13px;text-decoration:none}.primary{flex:1;background:#30392e;color:#f4f6ee;border-color:#30392e}.primary:hover:not(:disabled){background:#414c3c}.secondary{background:none}.status{margin:15px 0 0;color:#9a9f90;font-size:11px;line-height:1.6;overflow-wrap:anywhere}.status:empty{display:none}.status.error{color:#a9513e}.status.success{color:#819072}.progress-area{margin-top:18px}.progress-label{display:flex;justify-content:flex-end;font:10px ui-monospace,monospace;color:#939b86;margin-bottom:7px}progress{appearance:none;width:100%;height:2px;border:0;display:block;background:#e4e7db}progress::-webkit-progress-bar{background:#e4e7db}progress::-webkit-progress-value{background:#849475}progress::-moz-progress-bar{background:#849475}.output{margin-top:30px}.wave{background:#2a3028;border-radius:8px;overflow:hidden;padding:14px}.wave canvas{display:block;width:100%;height:78px}.output-meta{display:flex;justify-content:space-between;margin:12px 1px;color:#929a86;font:11px ui-monospace,monospace}.player-area audio{display:block;width:100%;height:36px;margin-top:18px}.download{display:flex;justify-content:center;width:42px;height:38px;min-height:0;margin:15px auto 0;padding:7px;font-size:18px;border:0}.mic-state{display:flex;justify-content:center;margin:36px 0}.dot{width:5px;height:5px;border-radius:50%;background:#d7dccd}.mic-state.live .dot{background:#7e926d;box-shadow:0 0 0 5px #7e926d12;animation:breathe 1.5s infinite}#decode-panel .actions{margin-top:24px}@keyframes breathe{50%{box-shadow:0 0 0 8px #7e926d08}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}@media(max-width:420px){.shell{padding-top:44px}.tabs{margin-bottom:32px}.fields{gap:8px}.dropzone{min-height:155px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<div class="tabs" role="tablist" aria-label="Mode">
+<button class="tab" id="encode-tab" role="tab" aria-selected="true" aria-controls="encode-panel" tabindex="0">play</button>
+<button class="tab" id="decode-tab" role="tab" aria-selected="false" aria-controls="decode-panel" tabindex="-1">listen</button>
+</div>
+<section id="encode-panel" role="tabpanel" aria-labelledby="encode-tab">
+<input type="file" id="file-input" class="sr-only" tabindex="-1">
+<label for="file-input" class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose or drop a file"><span class="plus" aria-hidden="true">+</span><span class="drop-title" id="file-name"></span><span class="drop-hint" id="file-detail"></span><span class="sr-only" id="choose-label">Choose file</span></label>
+<div class="fields">
+<div class="input-wrap"><input id="encode-bitrate" aria-label="Bitrate" type="number" min="1" max="9600" step="1" value="100" inputmode="numeric"><span class="unit" aria-hidden="true">bit/s</span></div>
+<div class="input-wrap"><input id="encode-frequency" aria-label="Carrier frequency in Hz" type="number" min="0.01" max="23999.99" step="any" value="2000" inputmode="decimal"><span class="unit" aria-hidden="true">Hz</span></div>
+<button class="preset" id="encode-preset" aria-label="Use 9,600 bits per second and 12 kHz">↗</button>
+</div>
+<p class="estimate" id="encode-estimate"></p>
+<div class="actions"><button class="button primary" id="generate" aria-label="Generate WAV" disabled>→</button><button class="button secondary" id="cancel-encode" hidden aria-label="Cancel">×</button></div>
+<div class="progress-area" id="encode-progress-area" hidden><div class="progress-label"><span id="encode-percent">0%</span></div><progress id="encode-progress" max="100" value="0" aria-label="Encoding progress"></progress></div>
+<p class="status" id="encode-status" role="status" aria-live="polite"></p>
+<div class="output" id="encode-output" hidden><div class="wave"><canvas id="encode-wave" width="800" height="230" aria-label="Audio waveform"></canvas></div><span id="wave-end" class="sr-only"></span><div class="output-meta"><span id="wav-duration" aria-label="Duration"></span><span id="wav-size" aria-label="WAV size"></span></div><div class="player-area"><span id="encode-empty" hidden></span><audio id="player" controls preload="metadata" hidden aria-label="Play"></audio><a class="button download" id="wav-download" hidden aria-label="Download WAV">↓</a></div></div>
+</section>
+<section id="decode-panel" role="tabpanel" aria-labelledby="decode-tab" hidden>
+<div class="fields">
+<div class="input-wrap"><input id="decode-bitrate" aria-label="Bitrate" type="number" min="1" max="9600" step="1" value="100" inputmode="numeric"><span class="unit" aria-hidden="true">bit/s</span></div>
+<div class="input-wrap"><input id="decode-frequency" aria-label="Carrier frequency in Hz" type="number" min="0.01" max="23999.99" step="any" value="2000" inputmode="decimal"><span class="unit" aria-hidden="true">Hz</span></div>
+<button class="preset" id="decode-preset" aria-label="Use 9,600 bits per second and 12 kHz">↗</button>
+</div>
+<div class="mic-state" id="mic-state"><span class="dot" aria-hidden="true"></span><span id="mic-label" class="sr-only">Microphone off</span></div>
+<div class="actions"><button class="button primary" id="start-listening">listen</button><button class="button secondary" id="stop-listening" hidden>stop</button></div>
+<div class="progress-area" id="decode-progress-area" hidden><div class="progress-label"><span id="decode-percent">0%</span></div><progress id="decode-progress" max="100" value="0" aria-label="Receiving progress"></progress></div>
+<p class="status" id="decode-status" role="status" aria-live="polite"></p>
+<div class="output" id="decode-output" hidden><span id="receive-tag" class="sr-only"></span><div class="wave"><canvas id="decode-wave" width="800" height="230" aria-label="Microphone waveform"></canvas></div><span id="input-rate" class="sr-only"></span><div class="output-meta"><span id="received-size" aria-label="File size"></span><span id="received-crc" aria-label="Checksum"></span></div><div class="player-area"><span id="decode-empty" hidden></span><a class="button download" id="file-download" download="received.bin" hidden aria-label="Download received file">↓</a></div></div>
+</section>
+</main>
+<!-- WORKER_SOURCE -->
+<!-- APP_SOURCE -->
+</body></html>
