@@ -76,6 +76,11 @@
         length !== Math.min(chunkSize, size - index * chunkSize) || view.getUint16(26) !== density) return null;
     return {density, chunkSize, session: view.getUint32(4), checksum: view.getUint32(12), size, index, count, chunk: bytes.slice(HEADER, HEADER + length)};
   }
+  function frameIndices(index, count, codes = 1) {
+    if (!Number.isInteger(codes) || codes < 1 || codes > 9) throw Error('Choose from 1 to 9 simultaneous codes.');
+    if (!Number.isInteger(count) || count < 1 || !Number.isInteger(index) || index < 0 || index >= count) throw Error('Invalid visual frame index.');
+    return Array.from({length: codes}, (_, slot) => (index + Math.floor(slot * count / codes)) % count);
+  }
   class Receiver {
     constructor() { this.transfer = null; }
     accept(packet) {
@@ -87,7 +92,7 @@
       if (!current.seen[packet.index]) {
         current.bytes.set(packet.chunk, packet.index * packet.chunkSize); current.seen[packet.index] = 1; current.received++;
       }
-      const result = {received: current.received, count: current.count};
+      const result = {received: current.received, count: current.count, seen: current.seen};
       if (current.received === current.count) {
         if (crc32(current.bytes) !== packet.checksum) { this.transfer = null; throw Error('File checksum failed. Waiting for a fresh loop.'); }
         const nameSize = new DataView(current.bytes.buffer).getUint16(0);
@@ -192,9 +197,9 @@
         start = x; length = 1; previous = value;
       }
     }
-    return found.filter(item => item.hits >= 2).sort((a, b) => b.hits - a.hits).slice(0, 10);
+    return found.filter(item => item.hits >= 2).sort((a, b) => b.hits - a.hits).slice(0, 64);
   }
-  function decodeImage(image, previous = null) {
+  function decodeImages(image, previous = [], discover = true, limit = 9) {
     const {width, height} = image, {gray, threshold} = grayscale(image);
     const sample = (x, y) => {
       x = Math.round(x); y = Math.round(y);
@@ -228,30 +233,83 @@
       if (errors > 12) return null;
       return {packet: readPacket(read, density), density, corners: points, outline: [[0, 0], [density, 0], [density, density], [0, density]].map(([x, y]) => project(x, y))};
     }
-    if (previous) { const result = attempt(previous); if (result?.packet) return result; }
+    const results = [];
+    const center = points => points.reduce((p, q) => [p[0] + q[0] / 4, p[1] + q[1] / 4], [0, 0]);
+    const sameBoard = (a, b) => distance(center(a.corners), center(b.corners)) < distance(a.corners[0], a.corners[1]) * 0.25;
+    const add = result => {
+      if (!result) return;
+      const existing = results.findIndex(item => sameBoard(item, result));
+      if (existing < 0) results.push(result);
+      else if (result.packet) results[existing] = result;
+    };
+    const finish = () => {
+      const verified = results.filter(item => item.packet);
+      return [...verified, ...results.filter(item => !item.packet && !verified.some(other => sameBoard(other, item)))].slice(0, limit);
+    };
+    for (const points of previous) add(attempt(points));
+    if (results.filter(item => item.packet).length >= limit || (!discover && results.some(item => item.packet))) return finish();
     const candidates = finders(gray, width, height, threshold);
-    let calibrated = null;
-    for (let a = 0; a < candidates.length - 3; a++) for (let b = a + 1; b < candidates.length - 2; b++)
-      for (let c = b + 1; c < candidates.length - 1; c++) for (let d = c + 1; d < candidates.length; d++) {
-        const group = [a, b, c, d].map(i => candidates[i]), points = group.map(item => item.point);
-        const middle = points.reduce((p, q) => [p[0] + q[0] / 4, p[1] + q[1] / 4], [0, 0]);
-        points.sort((p, q) => Math.atan2(p[1] - middle[1], p[0] - middle[0]) - Math.atan2(q[1] - middle[1], q[0] - middle[0]));
-        const sides = points.map((p, i) => distance(p, points[(i + 1) % 4]));
-        if (Math.min(...sides) < 15 * Math.min(...group.map(item => item.unit)) || Math.max(...sides) / Math.min(...sides) > 3) continue;
-        const turns = points.map((p, i) => {
-          const q = points[(i + 1) % 4], r = points[(i + 2) % 4];
-          return (q[0] - p[0]) * (r[1] - q[1]) - (q[1] - p[1]) * (r[0] - q[0]);
-        });
-        if (!turns.every(value => value > 0)) continue;
-        // Try rotations and mirrored camera feeds. The packet magic fixes orientation.
-        for (const direction of [1, -1]) for (let rotation = 0; rotation < 4; rotation++) {
-          const ordered = points.map((_, i) => points[(rotation + direction * i + 4) % 4]);
-          const result = attempt(ordered);
-          if (result?.packet) return result;
-          if (result) calibrated = result;
-        }
+    // Remove corners of successfully tracked boards before searching for additional codes.
+    const used = new Set();
+    function markUsed(result) {
+      if (!result?.packet) return;
+      candidates.forEach((item, i) => {
+        if (result.corners.some(point => distance(point, item.point) < item.unit * 2)) used.add(i);
+      });
+    }
+    results.forEach(markUsed);
+    const tested = new Set();
+    function quadrilateral(indices) {
+      const key = [...indices].sort((a, b) => a - b).join(':');
+      if (tested.has(key)) return; tested.add(key);
+      const group = indices.map(i => candidates[i]), points = group.map(item => item.point);
+      const middle = center(points);
+      points.sort((p, q) => Math.atan2(p[1] - middle[1], p[0] - middle[0]) - Math.atan2(q[1] - middle[1], q[0] - middle[0]));
+      const sides = points.map((p, i) => distance(p, points[(i + 1) % 4]));
+      if (Math.min(...sides) < 15 * Math.min(...group.map(item => item.unit)) || Math.max(...sides) / Math.min(...sides) > 3) return;
+      const turns = points.map((p, i) => {
+        const q = points[(i + 1) % 4], r = points[(i + 2) % 4];
+        return (q[0] - p[0]) * (r[1] - q[1]) - (q[1] - p[1]) * (r[0] - q[0]);
+      });
+      if (!turns.every(value => value > 0)) return;
+      let calibrated = null;
+      for (const direction of [1, -1]) for (let rotation = 0; rotation < 4; rotation++) {
+        const ordered = points.map((_, i) => points[(rotation + direction * i + 4) % 4]);
+        const result = attempt(ordered);
+        if (result?.packet) { add(result); markUsed(result); return; }
+        if (result) calibrated = result;
       }
-    return calibrated;
+      // Only keep a calibration outline when it doesn't overlap an already verified code.
+      if (calibrated && !results.some(item => item.packet && sameBoard(item, calibrated))) add(calibrated);
+    }
+    // Find neighboring L-shaped triples, then the opposite corner. This bounds work
+    // for grids of codes without enumerating every combination of four markers.
+    for (let a = 0; a < candidates.length; a++) {
+      if (used.has(a)) continue;
+      const origin = candidates[a];
+      const neighbors = candidates.map((item, i) => ({...item, i, length: distance(origin.point, item.point)})).filter(item =>
+        item.i !== a && !used.has(item.i) && item.length > 18 * Math.min(origin.unit, item.unit) &&
+        item.length < 110 * Math.max(origin.unit, item.unit) && Math.max(origin.unit, item.unit) / Math.min(origin.unit, item.unit) < 2.5).sort((p, q) => p.length - q.length);
+      for (let b = 0; b < neighbors.length && !used.has(a); b++) for (let c = b + 1; c < neighbors.length && !used.has(a); c++) {
+        const q = neighbors[b], r = neighbors[c];
+        if (used.has(q.i) || used.has(r.i) || Math.max(q.length, r.length) / Math.min(q.length, r.length) > 2.8) continue;
+        const dot = (q.point[0] - origin.point[0]) * (r.point[0] - origin.point[0]) + (q.point[1] - origin.point[1]) * (r.point[1] - origin.point[1]);
+        if (Math.abs(dot) > q.length * r.length * 0.7) continue;
+        const predicted = [q.point[0] + r.point[0] - origin.point[0], q.point[1] + r.point[1] - origin.point[1]];
+        const tolerance = Math.max(q.length, r.length) * 0.45;
+        candidates.map((item, i) => ({i, error: distance(predicted, item.point)}))
+          .filter(item => !used.has(item.i) && ![a, q.i, r.i].includes(item.i) && item.error < tolerance)
+          .sort((p, q) => p.error - q.error).slice(0, 3)
+          .forEach(item => { if (!used.has(a)) quadrilateral([a, q.i, r.i, item.i]); });
+        if (results.filter(item => item.packet).length >= limit) return finish();
+      }
+    }
+    return finish();
   }
-  globalThis.VisualCodec = {GRID, QUIET, MAX_FILE, layout, encode, Receiver, decodeImage, homography, readPacket};
+  function decodeImage(image, previous = null) {
+    const results = decodeImages(image, previous ? [previous] : [], true, 1);
+    return results.find(item => item.packet) || results[0] || null;
+  }
+
+  globalThis.VisualCodec = {GRID, QUIET, MAX_FILE, layout, encode, frameIndices, Receiver, decodeImage, decodeImages, homography, readPacket};
 })();

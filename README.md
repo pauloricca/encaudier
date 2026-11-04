@@ -12,7 +12,9 @@ including when opened directly from disk.
 The **listen** tab listens through the microphone after you click Start and
 grant access. It detects the frame, shows receiving progress, checks CRC32, and
 offers the original bytes with their transmitted filename (or `received.bin` if
-unnamed). Microphone capture stops after a successful reception, when you click Stop, or when you leave the listen tab.
+unnamed). Received images preview automatically after verification, with the download
+still available. Unsupported image formats remain downloadable. Microphone capture
+stops after a successful reception, when you click Stop, or when you leave the listen tab.
 
 For browser microphone or camera access, serve the page on localhost:
 
@@ -33,7 +35,7 @@ the same clock-drift and audio-channel limitations as the Python decoder.
 
 The bundled HTML has no runtime dependencies or build requirement. After editing
 `web/app.js`, `web/modem-worker.js`, `web/visual-codec.js`,
-`web/visual-app.js`, or `web/index.template.html`, rebuild it with
+`web/visual-app.js`, `web/received-preview.js`, or `web/index.template.html`, rebuild it with
 `python3 web/build.py`. Browser/Python compatibility tests run with
 `node --test web/test-modem.mjs` (Node.js and the Python requirements below).
 
@@ -43,27 +45,41 @@ On the sending computer, open **show**, choose a file, and click **show file**.
 On the receiving computer, open **scan**, click **start camera**, and allow camera
 access. Aim at the sending screen with all four corner markers in view. Use
 **expand** on the sender to make the grid larger. After reception, download the
-original file with its filename and a verified checksum. Camera capture stops
-automatically on success, when stopped, or when leaving the scan tab.
+original file with its filename and a verified checksum. Images preview immediately
+when the browser supports their format; the download remains available. Camera
+capture stops automatically on success, when stopped, or when leaving the scan tab.
 
-The sender has two numeric settings, styled like the audio controls:
+The sender has three numeric settings, styled like the audio controls:
 
 | Setting | Default | Range |
 | --- | --- | --- |
 | Density (boxes per side) | 48 × 48 | 32–96 |
 | Rate (frames per second) | 15 fps | 1–30 fps |
+| Simultaneous codes | 1 | 1–9 |
 
-The receiver reads the density from a fixed stripe in the grid and automatically
-finds the corner markers, orientation, and perspective. No matching receiver
-settings or manual corner clicks are needed. Density is locked while transmitting;
-stop to change it. Rate can change during transmission. The arrow resets both
-settings to their defaults. An estimate shows payload capacity before retries.
+Codes are arranged in a compact grid (four codes make a 2 × 2 grid). Each code
+loops at the selected frame rate with an evenly spaced packet offset: for 100
+packets and four codes, the first display contains packets 1, 26, 51, and 76.
+The code count and rate can change while sending. Each code keeps its own quiet
+border and corner markers; more codes need more screen area or a closer camera.
+
+The receiver reads the density from a fixed stripe in each code and automatically
+finds every visible code’s corner markers, orientation, and perspective. No matching
+receiver settings or manual corner clicks are needed. Density is locked while
+transmitting; stop to change it. Rate and code count can change during transmission.
+The arrow resets all three settings to their defaults. An estimate shows payload capacity before retries.
 Higher density needs a larger, sharper camera image; higher frame rates need a
-shorter exposure and faster processing. Lower either setting if reception stalls.
+shorter exposure and faster processing. Reduce density, rate, or code count if
+reception stalls.
 
 Frames loop continuously. The receiver accepts numbered chunks in any order,
-ignores duplicates, and collects missed chunks on later loops. Every frame has a
-CRC32 to reject corruption and mixed frames from screen/camera timing; a second
+ignores duplicates, and collects missed chunks on later loops. A packet map places
+each packet at its actual position in the file: solid marks are verified packets,
+dashed gaps are missing. The label gives the unique packet count and percentage.
+Use the map’s zoom control and horizontal scroll to inspect individual packets;
+hover to see a packet number and its received/missing state. In fit view, files
+with more packets than pixels show proportional coverage per pixel. Every frame
+has a CRC32 to reject corruption and mixed frames from screen/camera timing; a second
 CRC32 covers the complete filename and file. There is no return channel or error
 correction: stop the sender after the receiver finishes. To receive a different
 file, stop and restart the camera. Visual files are limited to 16 MiB. Screen glare,
@@ -73,7 +89,8 @@ small file. The animation flashes black and white, with a notice before starting
 The optical protocol is separate from the Python/audio protocol. It runs entirely
 in the page, without external libraries or network calls. Run its synthetic camera
 and packet tests with `node --test web/test-visual.mjs`; these cover perspective,
-rotation, mirroring, blur, noise, density detection, missed frames, corruption,
+rotation, mirroring, blur, noise, density detection, multiple simultaneous codes,
+phase offsets, exact packet membership, missed frames, corruption,
 and complete file recovery. Real screen-to-camera performance needs hardware testing.
 
 ## Python scripts

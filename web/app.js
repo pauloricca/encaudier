@@ -179,6 +179,7 @@
       $('decode-output').hidden = true;
       $('decode-progress-area').hidden = true; $('received-size').textContent = '—'; $('received-crc').textContent = '—';
       $('file-download').hidden = true; $('decode-empty').hidden = false;
+      ReceivedPreview.clear('decode-image');
       if (receivedURL) URL.revokeObjectURL(receivedURL); receivedURL = null;
       status('decode', 'allow microphone access…');
       await current.context.resume();
@@ -200,7 +201,9 @@
         else if (message.type === 'receive-progress') progress('decode', message.percent);
         else if (message.type === 'receive-reset') { $('decode-progress-area').hidden = true; $('received-size').textContent = '—'; $('received-crc').textContent = '—'; $('receive-tag').textContent = 'LIVE'; status('decode', message.message); }
         else if (message.type === 'decoded') {
-          receivedURL = URL.createObjectURL(new Blob([message.buffer], {type: 'application/octet-stream'}));
+          const blob = ReceivedPreview.blob(message.buffer, message.filename || 'received.bin');
+          receivedURL = URL.createObjectURL(blob);
+          ReceivedPreview.show('decode-image', receivedURL, message.filename || 'received.bin', blob.type);
           $('file-download').download = message.filename || 'received.bin';
           $('file-download').href = receivedURL; $('file-download').hidden = false; $('decode-empty').hidden = true;
           $('received-size').textContent = formatSize(message.size); $('received-crc').textContent = '✓';
@@ -244,6 +247,6 @@
       }
     });
   }
-  window.addEventListener('pagehide', () => { stopMic(); encoder?.close(); if (wavURL) URL.revokeObjectURL(wavURL); if (receivedURL) URL.revokeObjectURL(receivedURL); });
+  window.addEventListener('pagehide', () => { ReceivedPreview.clear('decode-image'); stopMic(); encoder?.close(); if (wavURL) URL.revokeObjectURL(wavURL); if (receivedURL) URL.revokeObjectURL(receivedURL); });
   idleWave($('encode-wave')); idleWave($('decode-wave'));
 })();

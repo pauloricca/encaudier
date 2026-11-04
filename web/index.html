@@ -3,12 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; worker-src blob:; media-src blob:; connect-src blob:; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; worker-src blob:; media-src blob:; connect-src blob:; img-src data: blob:; base-uri 'none'; form-action 'none'">
 <title>Encaudier</title>
 <style>
 :root{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#30332e;background:#f7f7f3;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button,input,a{font:inherit}button,a,input{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.3}a{color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,label:focus-visible{outline:2px solid #929b86;outline-offset:5px}[hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.shell{max-width:456px;margin:0 auto;padding:76px 24px 48px}.tabs{display:flex;justify-content:center;gap:38px;margin-bottom:42px}.tab{border:0;background:none;color:#a1a59b;padding:9px 1px;font-size:14px;position:relative}.tab[aria-selected=true]{color:#30332e}.tab[aria-selected=true]:after{content:"";position:absolute;bottom:0;left:0;right:0;height:1px;background:#30332e}.dropzone{border:1px dashed #d2d6c9;border-radius:10px;min-height:174px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;padding:24px;cursor:pointer;transition:background .15s,border-color .15s}.dropzone:hover,.dropzone.dragover{background:#eeefe7;border-color:#8f9882}.plus{font-size:32px;line-height:1;font-weight:200;color:#a9af9e}.drop-title{font-size:13px;overflow-wrap:anywhere;max-width:100%}.drop-title:empty,.drop-hint:empty{display:none}.drop-hint{color:#969c8c;font:11px ui-monospace,monospace}.fields{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;margin-top:24px;align-items:center}.input-wrap{position:relative}.input-wrap input{width:100%;padding:12px 46px 12px 10px;border:0;border-bottom:1px solid #d8dccf;border-radius:0;background:none;color:#51594a;font:13px ui-monospace,monospace;appearance:textfield}.input-wrap input::-webkit-inner-spin-button{appearance:none}.unit{position:absolute;right:5px;top:14px;color:#999f90;font-size:10px;pointer-events:none}.preset{border:0;background:none;color:#8c957e;padding:10px;font-size:17px}.estimate{margin:16px 0 0;color:#9a9f90;font:10px ui-monospace,monospace;min-height:0}.estimate:empty{display:none}.actions{display:flex;gap:10px;margin-top:26px}.button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border:1px solid #dfe2d6;border-radius:7px;padding:9px 17px;background:transparent;color:#626c57;font-size:13px;text-decoration:none}.primary{flex:1;background:#30392e;color:#f4f6ee;border-color:#30392e}.primary:hover:not(:disabled){background:#414c3c}.secondary{background:none}.status{margin:15px 0 0;color:#9a9f90;font-size:11px;line-height:1.6;overflow-wrap:anywhere}.status:empty{display:none}.status.error{color:#a9513e}.status.success{color:#819072}.progress-area{margin-top:18px}.progress-label{display:flex;justify-content:flex-end;font:10px ui-monospace,monospace;color:#939b86;margin-bottom:7px}progress{appearance:none;width:100%;height:2px;border:0;display:block;background:#e4e7db}progress::-webkit-progress-bar{background:#e4e7db}progress::-webkit-progress-value{background:#849475}progress::-moz-progress-bar{background:#849475}.output{margin-top:30px}.wave{background:#2a3028;border-radius:8px;overflow:hidden;padding:14px}.wave canvas{display:block;width:100%;height:78px}.output-meta{display:flex;justify-content:space-between;margin:12px 1px;color:#929a86;font:11px ui-monospace,monospace}.player-area audio{display:block;width:100%;height:36px;margin-top:18px}.download{display:flex;justify-content:center;width:42px;height:38px;min-height:0;margin:15px auto 0;padding:7px;font-size:18px;border:0}.mic-state{display:flex;justify-content:center;margin:36px 0}.dot{width:5px;height:5px;border-radius:50%;background:#d7dccd}.mic-state.live .dot{background:#7e926d;box-shadow:0 0 0 5px #7e926d12;animation:breathe 1.5s infinite}#decode-panel .actions{margin-top:24px}@keyframes breathe{50%{box-shadow:0 0 0 8px #7e926d08}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}@media(max-width:420px){.shell{padding-top:44px}.tabs{margin-bottom:32px}.fields{gap:8px}.dropzone{min-height:155px}}
 
 select{font:inherit;color:inherit;background:transparent;border:1px solid #d8dccf;border-radius:6px;padding:8px;max-width:100%}select:focus-visible{outline:2px solid #929b86;outline-offset:4px}.tabs{gap:28px}.hint{font-size:12px;line-height:1.7;color:#858e7b;margin:0 0 20px}.visual-stage{margin-top:22px;background:#fff;border-radius:8px;padding:12px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;position:relative}.visual-stage canvas{display:block;width:100%;height:auto;image-rendering:pixelated}.visual-stage:fullscreen{margin:0;border-radius:0;padding:5vmin;aspect-ratio:auto;width:100%;height:100%;background:#fff}.visual-stage:fullscreen canvas{width:auto;height:auto;max-width:100%;max-height:100%;aspect-ratio:1}.visual-stage:fullscreen .stage-label{display:none}.stage-label{position:absolute;font:11px ui-monospace,monospace;color:#858e7b;background:#fff;padding:12px;text-align:center}.camera-stage{margin-top:22px;background:#2a3028;border-radius:8px;overflow:hidden;position:relative;min-height:200px;display:flex;align-items:center;justify-content:center}.camera-stage canvas{display:block;width:100%;height:auto}.camera-stage .stage-label{background:transparent;color:#bec7b2}.visual-warning{font-size:11px;color:#858e7b;line-height:1.6;margin:18px 0 0}.visual-file{padding:18px;min-height:130px}.camera-select{width:100%;margin-top:16px;font-size:12px}.visual-meta{font:10px ui-monospace,monospace;color:#929a86;margin:14px 0 0;line-height:1.6}.visual-meta:empty{display:none}
+.received-preview{display:block;max-width:100%;max-height:70vh;width:auto;height:auto;margin:20px auto 0;border-radius:8px;object-fit:contain}
+.visual-fields{grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:8px}.visual-fields input{padding-right:40px}.packet-map-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;font:10px ui-monospace,monospace;color:#858e7b}.packet-map-heading label{display:flex;align-items:center;gap:6px}.packet-map-heading select{font-size:10px;padding:4px}.packet-strip{width:100%;overflow-x:auto;border-radius:4px;outline-offset:4px;background:#eeefe7}.packet-strip:focus-visible{outline:2px solid #929b86}#packet-spacer{height:28px;min-width:100%}#packet-map{position:sticky;left:0;display:block;height:28px}.packet-map-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font:10px ui-monospace,monospace;color:#939b86}.packet-map-legend span{display:flex;align-items:center;gap:5px}.packet-key{display:inline-block;width:10px;height:7px}.packet-key.received{background:#738866}.packet-key.missing{border:1px dashed #a4ad99}#packet-range{margin-left:auto}
 </style>
 </head>
 <body>
@@ -43,16 +45,17 @@ select{font:inherit;color:inherit;background:transparent;border:1px solid #d8dcc
 <div class="actions"><button class="button primary" id="start-listening">listen</button><button class="button secondary" id="stop-listening" hidden>stop</button></div>
 <div class="progress-area" id="decode-progress-area" hidden><div class="progress-label"><span id="decode-percent">0%</span></div><progress id="decode-progress" max="100" value="0" aria-label="Receiving progress"></progress></div>
 <p class="status" id="decode-status" role="status" aria-live="polite"></p>
-<div class="output" id="decode-output" hidden><span id="receive-tag" class="sr-only"></span><div class="wave"><canvas id="decode-wave" width="800" height="230" aria-label="Microphone waveform"></canvas></div><span id="input-rate" class="sr-only"></span><div class="output-meta"><span id="received-size" aria-label="File size"></span><span id="received-crc" aria-label="Checksum"></span></div><div class="player-area"><span id="decode-empty" hidden></span><a class="button download" id="file-download" download="received.bin" hidden aria-label="Download received file">↓</a></div></div>
+<div class="output" id="decode-output" hidden><span id="receive-tag" class="sr-only"></span><div class="wave"><canvas id="decode-wave" width="800" height="230" aria-label="Microphone waveform"></canvas></div><span id="input-rate" class="sr-only"></span><div class="output-meta"><span id="received-size" aria-label="File size"></span><span id="received-crc" aria-label="Checksum"></span></div><div class="player-area"><span id="decode-empty" hidden></span><img class="received-preview" id="decode-image" alt="" hidden><a class="button download" id="file-download" download="received.bin" hidden aria-label="Download received file">↓</a></div></div>
 </section>
 <section id="show-panel" role="tabpanel" aria-labelledby="show-tab" hidden>
 <p class="hint">Send a file from this screen to another computer’s camera. Open <b>scan</b> on the receiving computer.</p>
 <input type="file" id="visual-file" class="sr-only" tabindex="-1">
 <label for="visual-file" class="dropzone visual-file" id="visual-dropzone" tabindex="0" role="button" aria-label="Choose or drop a file for visual transfer"><span class="plus" aria-hidden="true">+</span><span class="drop-title" id="visual-filename">choose a file</span><span class="drop-hint" id="visual-filesize">up to 16 MiB</span></label>
-<div class="fields">
+<div class="fields visual-fields">
 <div class="input-wrap"><input id="visual-density" aria-label="Grid density in boxes per side" type="number" min="32" max="96" step="1" value="48" inputmode="numeric"><span class="unit" aria-hidden="true">boxes</span></div>
 <div class="input-wrap"><input id="visual-speed" aria-label="Visual frame rate" type="number" min="1" max="30" step="1" value="15" inputmode="numeric"><span class="unit" aria-hidden="true">fps</span></div>
-<button class="preset" id="visual-preset" aria-label="Use 48 boxes per side and 15 frames per second">↗</button>
+<div class="input-wrap"><input id="visual-codes" aria-label="Number of simultaneous codes" type="number" min="1" max="9" step="1" value="1" inputmode="numeric"><span class="unit" aria-hidden="true">codes</span></div>
+<button class="preset" id="visual-preset" aria-label="Use 48 boxes per side, 15 frames per second, and one code">↗</button>
 </div>
 <p class="estimate" id="visual-estimate">48 × 48 boxes · 15 fps</p>
 <div class="actions"><button class="button primary" id="start-show" disabled>show file</button><button class="button secondary" id="stop-show" hidden>stop</button><button class="button secondary" id="visual-fullscreen">expand</button></div>
@@ -62,13 +65,18 @@ select{font:inherit;color:inherit;background:transparent;border:1px solid #d8dcc
 <p class="status" id="show-status" role="status" aria-live="polite"></p>
 </section>
 <section id="scan-panel" role="tabpanel" aria-labelledby="scan-tab" hidden>
-<p class="hint">Point your camera at a computer running <b>show</b>. Keep all four corner markers visible. Calibration follows the screen automatically, even at an angle.</p>
+<p class="hint">Point your camera at a computer running <b>show</b>. Keep each code’s four corner markers visible. Each code calibrates automatically, even at an angle.</p>
 <label class="sr-only" for="camera-select">Camera</label><select class="camera-select" id="camera-select"><option value="">default camera</option></select>
 <div class="actions"><button class="button primary" id="start-scan">start camera</button><button class="button secondary" id="stop-scan" hidden>stop</button></div>
 <div class="camera-stage"><video id="camera-video" muted playsinline hidden aria-label="Camera input"></video><canvas id="camera-preview" width="640" height="480" hidden aria-label="Camera preview with detected screen outline"></canvas><span class="stage-label" id="camera-idle">camera off</span></div>
-<div class="progress-area" id="scan-progress-area" hidden><div class="progress-label"><span id="scan-percent">0%</span></div><progress id="scan-progress" max="100" value="0" aria-label="Visual reception progress"></progress></div>
+<div class="progress-area" id="scan-progress-area" hidden>
+<div class="packet-map-heading"><span id="scan-percent">0%</span><label>view <select id="packet-zoom" aria-label="Packet map zoom"><option value="0">fit all</option><option value="3">3 px / packet</option><option value="8">8 px / packet</option></select></label></div>
+<div class="packet-strip" id="packet-strip" tabindex="0" aria-label="Packet positions; scroll to inspect when zoomed"><div id="packet-spacer"><canvas id="packet-map" height="28" role="img" aria-label="Received packets in file order"></canvas></div></div>
+<div class="packet-map-legend"><span><i class="packet-key received"></i>received</span><span><i class="packet-key missing"></i>missing</span><span id="packet-range"></span></div>
+</div>
 <p class="visual-meta" id="scan-meta"></p>
 <p class="status" id="scan-status" role="status" aria-live="polite"></p>
+<img class="received-preview" id="scan-image" alt="" hidden>
 <a class="button download" id="visual-download" hidden aria-label="Download camera received file">↓</a>
 </section>
 </main>
@@ -359,6 +367,11 @@ onmessage = async ({data}) => {
         length !== Math.min(chunkSize, size - index * chunkSize) || view.getUint16(26) !== density) return null;
     return {density, chunkSize, session: view.getUint32(4), checksum: view.getUint32(12), size, index, count, chunk: bytes.slice(HEADER, HEADER + length)};
   }
+  function frameIndices(index, count, codes = 1) {
+    if (!Number.isInteger(codes) || codes < 1 || codes > 9) throw Error('Choose from 1 to 9 simultaneous codes.');
+    if (!Number.isInteger(count) || count < 1 || !Number.isInteger(index) || index < 0 || index >= count) throw Error('Invalid visual frame index.');
+    return Array.from({length: codes}, (_, slot) => (index + Math.floor(slot * count / codes)) % count);
+  }
   class Receiver {
     constructor() { this.transfer = null; }
     accept(packet) {
@@ -370,7 +383,7 @@ onmessage = async ({data}) => {
       if (!current.seen[packet.index]) {
         current.bytes.set(packet.chunk, packet.index * packet.chunkSize); current.seen[packet.index] = 1; current.received++;
       }
-      const result = {received: current.received, count: current.count};
+      const result = {received: current.received, count: current.count, seen: current.seen};
       if (current.received === current.count) {
         if (crc32(current.bytes) !== packet.checksum) { this.transfer = null; throw Error('File checksum failed. Waiting for a fresh loop.'); }
         const nameSize = new DataView(current.bytes.buffer).getUint16(0);
@@ -475,9 +488,9 @@ onmessage = async ({data}) => {
         start = x; length = 1; previous = value;
       }
     }
-    return found.filter(item => item.hits >= 2).sort((a, b) => b.hits - a.hits).slice(0, 10);
+    return found.filter(item => item.hits >= 2).sort((a, b) => b.hits - a.hits).slice(0, 64);
   }
-  function decodeImage(image, previous = null) {
+  function decodeImages(image, previous = [], discover = true, limit = 9) {
     const {width, height} = image, {gray, threshold} = grayscale(image);
     const sample = (x, y) => {
       x = Math.round(x); y = Math.round(y);
@@ -511,32 +524,124 @@ onmessage = async ({data}) => {
       if (errors > 12) return null;
       return {packet: readPacket(read, density), density, corners: points, outline: [[0, 0], [density, 0], [density, density], [0, density]].map(([x, y]) => project(x, y))};
     }
-    if (previous) { const result = attempt(previous); if (result?.packet) return result; }
+    const results = [];
+    const center = points => points.reduce((p, q) => [p[0] + q[0] / 4, p[1] + q[1] / 4], [0, 0]);
+    const sameBoard = (a, b) => distance(center(a.corners), center(b.corners)) < distance(a.corners[0], a.corners[1]) * 0.25;
+    const add = result => {
+      if (!result) return;
+      const existing = results.findIndex(item => sameBoard(item, result));
+      if (existing < 0) results.push(result);
+      else if (result.packet) results[existing] = result;
+    };
+    const finish = () => {
+      const verified = results.filter(item => item.packet);
+      return [...verified, ...results.filter(item => !item.packet && !verified.some(other => sameBoard(other, item)))].slice(0, limit);
+    };
+    for (const points of previous) add(attempt(points));
+    if (results.filter(item => item.packet).length >= limit || (!discover && results.some(item => item.packet))) return finish();
     const candidates = finders(gray, width, height, threshold);
-    let calibrated = null;
-    for (let a = 0; a < candidates.length - 3; a++) for (let b = a + 1; b < candidates.length - 2; b++)
-      for (let c = b + 1; c < candidates.length - 1; c++) for (let d = c + 1; d < candidates.length; d++) {
-        const group = [a, b, c, d].map(i => candidates[i]), points = group.map(item => item.point);
-        const middle = points.reduce((p, q) => [p[0] + q[0] / 4, p[1] + q[1] / 4], [0, 0]);
-        points.sort((p, q) => Math.atan2(p[1] - middle[1], p[0] - middle[0]) - Math.atan2(q[1] - middle[1], q[0] - middle[0]));
-        const sides = points.map((p, i) => distance(p, points[(i + 1) % 4]));
-        if (Math.min(...sides) < 15 * Math.min(...group.map(item => item.unit)) || Math.max(...sides) / Math.min(...sides) > 3) continue;
-        const turns = points.map((p, i) => {
-          const q = points[(i + 1) % 4], r = points[(i + 2) % 4];
-          return (q[0] - p[0]) * (r[1] - q[1]) - (q[1] - p[1]) * (r[0] - q[0]);
-        });
-        if (!turns.every(value => value > 0)) continue;
-        // Try rotations and mirrored camera feeds. The packet magic fixes orientation.
-        for (const direction of [1, -1]) for (let rotation = 0; rotation < 4; rotation++) {
-          const ordered = points.map((_, i) => points[(rotation + direction * i + 4) % 4]);
-          const result = attempt(ordered);
-          if (result?.packet) return result;
-          if (result) calibrated = result;
-        }
+    // Remove corners of successfully tracked boards before searching for additional codes.
+    const used = new Set();
+    function markUsed(result) {
+      if (!result?.packet) return;
+      candidates.forEach((item, i) => {
+        if (result.corners.some(point => distance(point, item.point) < item.unit * 2)) used.add(i);
+      });
+    }
+    results.forEach(markUsed);
+    const tested = new Set();
+    function quadrilateral(indices) {
+      const key = [...indices].sort((a, b) => a - b).join(':');
+      if (tested.has(key)) return; tested.add(key);
+      const group = indices.map(i => candidates[i]), points = group.map(item => item.point);
+      const middle = center(points);
+      points.sort((p, q) => Math.atan2(p[1] - middle[1], p[0] - middle[0]) - Math.atan2(q[1] - middle[1], q[0] - middle[0]));
+      const sides = points.map((p, i) => distance(p, points[(i + 1) % 4]));
+      if (Math.min(...sides) < 15 * Math.min(...group.map(item => item.unit)) || Math.max(...sides) / Math.min(...sides) > 3) return;
+      const turns = points.map((p, i) => {
+        const q = points[(i + 1) % 4], r = points[(i + 2) % 4];
+        return (q[0] - p[0]) * (r[1] - q[1]) - (q[1] - p[1]) * (r[0] - q[0]);
+      });
+      if (!turns.every(value => value > 0)) return;
+      let calibrated = null;
+      for (const direction of [1, -1]) for (let rotation = 0; rotation < 4; rotation++) {
+        const ordered = points.map((_, i) => points[(rotation + direction * i + 4) % 4]);
+        const result = attempt(ordered);
+        if (result?.packet) { add(result); markUsed(result); return; }
+        if (result) calibrated = result;
       }
-    return calibrated;
+      // Only keep a calibration outline when it doesn't overlap an already verified code.
+      if (calibrated && !results.some(item => item.packet && sameBoard(item, calibrated))) add(calibrated);
+    }
+    // Find neighboring L-shaped triples, then the opposite corner. This bounds work
+    // for grids of codes without enumerating every combination of four markers.
+    for (let a = 0; a < candidates.length; a++) {
+      if (used.has(a)) continue;
+      const origin = candidates[a];
+      const neighbors = candidates.map((item, i) => ({...item, i, length: distance(origin.point, item.point)})).filter(item =>
+        item.i !== a && !used.has(item.i) && item.length > 18 * Math.min(origin.unit, item.unit) &&
+        item.length < 110 * Math.max(origin.unit, item.unit) && Math.max(origin.unit, item.unit) / Math.min(origin.unit, item.unit) < 2.5).sort((p, q) => p.length - q.length);
+      for (let b = 0; b < neighbors.length && !used.has(a); b++) for (let c = b + 1; c < neighbors.length && !used.has(a); c++) {
+        const q = neighbors[b], r = neighbors[c];
+        if (used.has(q.i) || used.has(r.i) || Math.max(q.length, r.length) / Math.min(q.length, r.length) > 2.8) continue;
+        const dot = (q.point[0] - origin.point[0]) * (r.point[0] - origin.point[0]) + (q.point[1] - origin.point[1]) * (r.point[1] - origin.point[1]);
+        if (Math.abs(dot) > q.length * r.length * 0.7) continue;
+        const predicted = [q.point[0] + r.point[0] - origin.point[0], q.point[1] + r.point[1] - origin.point[1]];
+        const tolerance = Math.max(q.length, r.length) * 0.45;
+        candidates.map((item, i) => ({i, error: distance(predicted, item.point)}))
+          .filter(item => !used.has(item.i) && ![a, q.i, r.i].includes(item.i) && item.error < tolerance)
+          .sort((p, q) => p.error - q.error).slice(0, 3)
+          .forEach(item => { if (!used.has(a)) quadrilateral([a, q.i, r.i, item.i]); });
+        if (results.filter(item => item.packet).length >= limit) return finish();
+      }
+    }
+    return finish();
   }
-  globalThis.VisualCodec = {GRID, QUIET, MAX_FILE, layout, encode, Receiver, decodeImage, homography, readPacket};
+  function decodeImage(image, previous = null) {
+    const results = decodeImages(image, previous ? [previous] : [], true, 1);
+    return results.find(item => item.packet) || results[0] || null;
+  }
+
+  globalThis.VisualCodec = {GRID, QUIET, MAX_FILE, layout, encode, frameIndices, Receiver, decodeImage, decodeImages, homography, readPacket};
+})();
+
+</script>
+<script >
+/* Shared by audio and camera reception; previews use the same local blob as downloads. */
+(() => {
+  'use strict';
+  const types = {png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif',
+    webp: 'image/webp', avif: 'image/avif', bmp: 'image/bmp', ico: 'image/vnd.microsoft.icon',
+    svg: 'image/svg+xml', tif: 'image/tiff', tiff: 'image/tiff', heic: 'image/heic', heif: 'image/heif'};
+  function blob(data, filename) {
+    const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+    const starts = signature => signature.every((value, i) => bytes[i] === value);
+    let type = '';
+    if (starts([137, 80, 78, 71, 13, 10, 26, 10])) type = 'image/png';
+    else if (starts([255, 216, 255])) type = 'image/jpeg';
+    else if (starts([71, 73, 70, 56, 55, 97]) || starts([71, 73, 70, 56, 57, 97])) type = 'image/gif';
+    else if (starts([82, 73, 70, 70]) && bytes[8] === 87 && bytes[9] === 69 && bytes[10] === 66 && bytes[11] === 80) type = 'image/webp';
+    else if (starts([66, 77])) type = 'image/bmp';
+    else if (starts([0, 0, 1, 0])) type = 'image/vnd.microsoft.icon';
+    else type = types[filename.split('.').pop().toLowerCase()] || 'application/octet-stream';
+    return new Blob([data], {type});
+  }
+  function clear(id) {
+    const image = document.getElementById(id);
+    image.onload = image.onerror = null; image.hidden = true;
+    image.removeAttribute('src'); image.alt = '';
+  }
+  function show(id, url, filename, type) {
+    clear(id);
+    if (!type.startsWith('image/')) return;
+    const image = document.getElementById(id);
+    image.alt = `Received image: ${filename}`;
+    image.onload = () => { if (image.getAttribute('src') === url) image.hidden = false; };
+    // Unsupported or invalid images still have a normal download, without a broken preview.
+    image.onerror = () => { if (image.getAttribute('src') === url) clear(id); };
+    image.src = url;
+  }
+  globalThis.ReceivedPreview = {blob, clear, show};
 })();
 
 </script>
@@ -722,6 +827,7 @@ onmessage = async ({data}) => {
       $('decode-output').hidden = true;
       $('decode-progress-area').hidden = true; $('received-size').textContent = '—'; $('received-crc').textContent = '—';
       $('file-download').hidden = true; $('decode-empty').hidden = false;
+      ReceivedPreview.clear('decode-image');
       if (receivedURL) URL.revokeObjectURL(receivedURL); receivedURL = null;
       status('decode', 'allow microphone access…');
       await current.context.resume();
@@ -743,7 +849,9 @@ onmessage = async ({data}) => {
         else if (message.type === 'receive-progress') progress('decode', message.percent);
         else if (message.type === 'receive-reset') { $('decode-progress-area').hidden = true; $('received-size').textContent = '—'; $('received-crc').textContent = '—'; $('receive-tag').textContent = 'LIVE'; status('decode', message.message); }
         else if (message.type === 'decoded') {
-          receivedURL = URL.createObjectURL(new Blob([message.buffer], {type: 'application/octet-stream'}));
+          const blob = ReceivedPreview.blob(message.buffer, message.filename || 'received.bin');
+          receivedURL = URL.createObjectURL(blob);
+          ReceivedPreview.show('decode-image', receivedURL, message.filename || 'received.bin', blob.type);
           $('file-download').download = message.filename || 'received.bin';
           $('file-download').href = receivedURL; $('file-download').hidden = false; $('decode-empty').hidden = true;
           $('received-size').textContent = formatSize(message.size); $('received-crc').textContent = '✓';
@@ -787,7 +895,7 @@ onmessage = async ({data}) => {
       }
     });
   }
-  window.addEventListener('pagehide', () => { stopMic(); encoder?.close(); if (wavURL) URL.revokeObjectURL(wavURL); if (receivedURL) URL.revokeObjectURL(receivedURL); });
+  window.addEventListener('pagehide', () => { ReceivedPreview.clear('decode-image'); stopMic(); encoder?.close(); if (wavURL) URL.revokeObjectURL(wavURL); if (receivedURL) URL.revokeObjectURL(receivedURL); });
   idleWave($('encode-wave')); idleWave($('decode-wave'));
 })();
 
@@ -812,15 +920,20 @@ onmessage = async ({data}) => {
     finally { wakePending = false; }
   }
   function releaseWakeLock() { wakeLock?.release().catch(() => {}); wakeLock = null; }
-  function draw(grid, density) {
+  function draw(indices, density) {
     const canvas = $('visual-grid'), ctx = canvas.getContext('2d');
-    const extent = density + codec.QUIET * 2;
-    if (canvas.width !== extent * 12) canvas.width = canvas.height = extent * 12;
-    const unit = canvas.width / extent;
-    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.fillStyle = '#000';
-    for (let y = 0; y < density; y++) for (let x = 0; x < density; x++) {
-      if (grid[y * density + x]) ctx.fillRect((x + codec.QUIET) * unit, (y + codec.QUIET) * unit, unit, unit);
-    }
+    const columns = Math.ceil(Math.sqrt(indices.length)), rows = Math.ceil(indices.length / columns);
+    const extent = density + codec.QUIET * 2, unit = Math.min(12, Math.floor(1920 / (extent * columns)));
+    const width = extent * unit * columns, height = extent * unit * rows;
+    if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
+    canvas.style.aspectRatio = `${columns} / ${rows}`;
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height); ctx.fillStyle = '#000';
+    indices.forEach((index, slot) => {
+      const grid = transmission.frame(index), left = (slot % columns) * extent, top = Math.floor(slot / columns) * extent;
+      for (let y = 0; y < density; y++) for (let x = 0; x < density; x++) {
+        if (grid[y * density + x]) ctx.fillRect((left + x + codec.QUIET) * unit, (top + y + codec.QUIET) * unit, unit, unit);
+      }
+    });
   }
   function stopShow(message = '') {
     const wasActive = !!transmission || $('visual-file').disabled;
@@ -848,16 +961,17 @@ onmessage = async ({data}) => {
   });
   function nextFrame() {
     if (!transmission) return;
-    draw(transmission.frame(frameIndex), transmission.density);
+    const codes = Number($('visual-codes').value), indices = codec.frameIndices(frameIndex, transmission.count, codes);
+    draw(indices, transmission.density);
     const fps = Number($('visual-speed').value);
-    $('show-meta').textContent = `frame ${frameIndex + 1} / ${transmission.count} · loop ${loops + 1} · ~${size(transmission.chunkSize * fps)}/s`;
+    $('show-meta').textContent = `packets ${indices.map(index => index + 1).join(", ")} / ${transmission.count} · loop ${loops + 1} · ~${size(transmission.chunkSize * fps * Math.min(codes, transmission.count))}/s`;
     if (++frameIndex === transmission.count) { frameIndex = 0; loops++; }
     timer = setTimeout(nextFrame, 1000 / fps);
   }
   $('start-show').addEventListener('click', async () => {
     if (!file || transmission) return;
     const generation = ++showGeneration, selected = file;
-    $('start-show').disabled = true; $('start-show').textContent = 'preparing…'; $('stop-show').hidden = false; $('visual-file').disabled = true;
+    $('start-show').disabled = true; $('start-show').textContent = 'preparing…'; $('stop-show').hidden = false; $('visual-file').disabled = true; $('visual-density').disabled = true;
     try {
       const {density} = settings();
       const bytes = new Uint8Array(await selected.arrayBuffer());
@@ -870,22 +984,23 @@ onmessage = async ({data}) => {
     } catch (error) { if (generation === showGeneration) { stopShow(); status('show', error.message, 'error'); } }
   });
   function settings() {
-    const density = Number($('visual-density').value), fps = Number($('visual-speed').value);
+    const density = Number($('visual-density').value), fps = Number($('visual-speed').value), codes = Number($('visual-codes').value);
     codec.layout(density);
     if (!Number.isInteger(fps) || fps < 1 || fps > 30) throw Error('Frame rate must be a whole number from 1 to 30 fps.');
-    return {density, fps};
+    codec.frameIndices(0, 1, codes);
+    return {density, fps, codes};
   }
   function estimate() {
     try {
-      const {density, fps} = settings(), bytes = codec.layout(density).chunkSize;
-      $('visual-estimate').textContent = `${density} × ${density} boxes · ${fps} fps · ~${size(bytes * fps)}/s before retries`;
+      const {density, fps, codes} = settings(), bytes = codec.layout(density).chunkSize;
+      $('visual-estimate').textContent = `${density} × ${density} boxes · ${fps} fps · ${codes} ${codes === 1 ? "code" : "codes"} · ~${size(bytes * fps * codes)}/s before retries`;
       if (!transmission) { $('start-show').disabled = !file; status('show', ''); }
     } catch (error) { if (transmission) stopShow(); $('start-show').disabled = true; $('visual-estimate').textContent = ''; status('show', error.message, 'error'); }
   }
-  for (const id of ['visual-density', 'visual-speed']) $(id).addEventListener('input', estimate);
+  for (const id of ['visual-density', 'visual-speed', 'visual-codes']) $(id).addEventListener('input', estimate);
   $('visual-preset').addEventListener('click', () => {
     if (transmission) stopShow('Settings reset. Click show file to restart.');
-    $('visual-density').value = 48; $('visual-speed').value = 15; estimate();
+    $('visual-density').value = 48; $('visual-speed').value = 15; $('visual-codes').value = 1; estimate();
   });
   estimate();
   $('stop-show').addEventListener('click', () => stopShow('stopped'));
@@ -897,6 +1012,52 @@ onmessage = async ({data}) => {
     } catch { status('show', 'Could not enter fullscreen. Enlarge the browser window or zoom in.'); }
   });
   document.addEventListener('fullscreenchange', () => { $('visual-fullscreen').textContent = document.fullscreenElement ? 'shrink' : 'expand'; });
+  let packetState = null;
+  function drawPacketMap() {
+    if (!packetState) return;
+    const strip = $('packet-strip'), canvas = $('packet-map'), width = strip.clientWidth;
+    if (!width) return;
+    const zoom = Number($('packet-zoom').value), scale = zoom || width / packetState.count;
+    $('packet-spacer').style.width = `${Math.max(width, packetState.count * scale)}px`;
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = Math.round(width * ratio); canvas.height = Math.round(28 * ratio); canvas.style.width = `${width}px`;
+    const ctx = canvas.getContext('2d'); ctx.scale(ratio, ratio);
+    ctx.fillStyle = '#eeefe7'; ctx.fillRect(0, 0, width, 28);
+    const offset = strip.scrollLeft, start = Math.max(0, Math.floor(offset / scale));
+    const end = Math.min(packetState.count, Math.ceil((offset + width) / scale));
+    if (scale < 1) {
+      for (let x = 0; x < width; x++) {
+        const lo = Math.floor((offset + x) / scale), hi = Math.min(packetState.count, Math.max(lo + 1, Math.floor((offset + x + 1) / scale)));
+        let received = 0; for (let i = lo; i < hi; i++) received += packetState.seen[i];
+        ctx.fillStyle = `rgba(83,114,68,${received / (hi - lo)})`; ctx.fillRect(x, 5, 1, 18);
+      }
+    } else {
+      ctx.setLineDash([2, 2]); ctx.strokeStyle = '#b2baa8'; ctx.fillStyle = '#738866';
+      const gap = scale >= 3 ? 1 : 0;
+      for (let i = start; i < end; i++) {
+        const x = i * scale - offset;
+        if (packetState.seen[i]) ctx.fillRect(x, 5, scale - gap, 18);
+        else if (scale >= 3) ctx.strokeRect(x + 0.5, 5.5, scale - gap - 1, 17);
+      }
+    }
+    $('packet-range').textContent = `${start + 1}–${end} / ${packetState.count}`;
+    canvas.setAttribute('aria-label', `${packetState.received} of ${packetState.count} packets received. Positions run left to right in file order; gaps are missing packets.`);
+  }
+  $('packet-strip').addEventListener('scroll', drawPacketMap);
+  $('packet-strip').addEventListener('keydown', event => {
+    if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault();
+      $('packet-strip').scrollLeft = event.key === 'Home' ? 0 : $('packet-strip').scrollWidth;
+    }
+  });
+  $('packet-zoom').addEventListener('change', () => { $('packet-strip').scrollLeft = 0; drawPacketMap(); });
+  window.addEventListener('resize', drawPacketMap);
+  $('packet-map').addEventListener('mousemove', event => {
+    if (!packetState) return;
+    const strip = $('packet-strip'), scale = Number($('packet-zoom').value) || strip.clientWidth / packetState.count;
+    const index = Math.min(packetState.count - 1, Math.floor((event.clientX - strip.getBoundingClientRect().left + strip.scrollLeft) / scale));
+    $('packet-map').title = `Packet ${index + 1} / ${packetState.count}: ${packetState.seen[index] ? 'received' : 'missing'}`;
+  });
   function stopScan(message = '') {
     const wasActive = !!stream || $('start-scan').disabled;
     scanGeneration++; cancelAnimationFrame(animation); animation = null;
@@ -919,6 +1080,8 @@ onmessage = async ({data}) => {
     const generation = ++scanGeneration;
     $('start-scan').disabled = true; $('stop-scan').hidden = false; $('camera-select').disabled = true;
     $('visual-download').hidden = true; $('scan-progress-area').hidden = true; $('scan-meta').textContent = '';
+    packetState = null; $('packet-strip').scrollLeft = 0;
+    ReceivedPreview.clear('scan-image');
     if (downloadURL) URL.revokeObjectURL(downloadURL); downloadURL = null;
     status('scan', 'allow camera access…');
     try {
@@ -935,10 +1098,10 @@ onmessage = async ({data}) => {
       cameras(stream.getVideoTracks()[0].getSettings().deviceId);
       stream.getVideoTracks().forEach(track => { track.onended = () => { if (generation === scanGeneration) stopScan('Camera disconnected. Start again with an available camera.'); }; });
       $('camera-preview').hidden = false; $('camera-idle').hidden = true;
-      status('scan', 'Looking for four corner markers. Fill most of the preview with the sending screen.'); keepAwake();
+      status('scan', 'Looking for codes. Keep each code’s four corner markers visible.'); keepAwake();
       const canvas = $('camera-preview'), ctx = canvas.getContext('2d', {willReadFrequently: true});
       const receiver = new codec.Receiver();
-      let previous = null, lastTime = 0, lastValid = 0, lastVideoTime = -1;
+      let previous = [], lastTime = 0, lastValid = 0, lastVideoTime = -1, lastSearch = -Infinity;
       function scan(now) {
         if (generation !== scanGeneration) return;
         animation = requestAnimationFrame(scan);
@@ -950,30 +1113,46 @@ onmessage = async ({data}) => {
         if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
         ctx.drawImage(video, 0, 0, width, height);
         try {
-          const found = codec.decodeImage(ctx.getImageData(0, 0, width, height), previous);
-          if (found) {
-            previous = found.corners;
-            ctx.strokeStyle = found.packet ? '#8de486' : '#eed67b'; ctx.lineWidth = 3; ctx.beginPath();
-            found.outline.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); ctx.stroke();
-          } else previous = null;
-          if (found?.packet) {
-            lastValid = now;
-            const result = receiver.accept(found.packet);
-            if (result.otherTransfer) { status('scan', 'A different file is visible. Stop and start the camera to receive it.'); return; }
-            const percent = Math.floor(result.received / result.count * 100);
-            $('scan-progress-area').hidden = false; $('scan-progress').value = percent; $('scan-percent').textContent = `${percent}%`;
-            $('scan-meta').textContent = `${result.received} / ${result.count} unique frames · ${found.density} × ${found.density} · corners locked`;
-            status('scan', 'Receiving… keep the screen in view. Missed frames arrive on the next loop.');
-            if (result.bytes) {
-              downloadURL = URL.createObjectURL(new Blob([result.bytes], {type: 'application/octet-stream'}));
-              $('visual-download').href = downloadURL; $('visual-download').download = result.filename; $('visual-download').hidden = false;
-              stopScan(); $('scan-meta').textContent = `${result.filename} · ${size(result.bytes.length)} · checksum verified`;
-              status('scan', 'received', 'success');
-            }
-          } else if (now - lastValid > 1800) {
-            status('scan', found ? 'Corners found. Hold steady, move closer, or lower the sender’s frame rate.' : 'Looking for four corner markers. Keep the whole grid visible, move closer, and avoid glare.');
+          const discover = now - lastSearch > 500;
+          if (discover) lastSearch = now;
+          const found = codec.decodeImages(ctx.getImageData(0, 0, width, height), previous, discover);
+          previous = found.map(item => item.corners);
+          for (const item of found) {
+            ctx.strokeStyle = item.packet ? '#8de486' : '#eed67b'; ctx.lineWidth = 3; ctx.beginPath();
+            item.outline.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); ctx.stroke();
           }
-        } catch (error) { status('scan', error.message, 'error'); }
+          let updated = false, completed = null, otherTransfer = false;
+          for (const item of found) {
+            if (!item.packet) continue;
+            const result = receiver.accept(item.packet);
+            if (result.otherTransfer) { otherTransfer = true; continue; }
+            lastValid = now; packetState = result; updated = true;
+            if (result.bytes) { completed = result; break; }
+          }
+          if (updated) {
+            const percent = Math.floor(packetState.received / packetState.count * 100);
+            $('scan-progress-area').hidden = false; $('scan-percent').textContent = `${packetState.received} / ${packetState.count} packets · ${percent}%`;
+            drawPacketMap();
+            const visible = found.filter(item => item.packet).length;
+            $('scan-meta').textContent = `${visible} ${visible === 1 ? 'code' : 'codes'} visible · corners locked`;
+            status('scan', 'Receiving… filled marks are verified packets; gaps arrive on later loops.');
+          } else if (otherTransfer) {
+            status('scan', 'A different file is visible. Stop and start the camera to receive it.');
+          } else if (now - lastValid > 1800) {
+            status('scan', found.length ? 'Corners found. Hold steady, move closer, or lower the sender’s frame rate.' : 'Looking for corner markers. Keep the codes visible, move closer, and avoid glare.');
+          }
+          if (completed) {
+            const blob = ReceivedPreview.blob(completed.bytes, completed.filename);
+            downloadURL = URL.createObjectURL(blob);
+            ReceivedPreview.show('scan-image', downloadURL, completed.filename, blob.type);
+            $('visual-download').href = downloadURL; $('visual-download').download = completed.filename; $('visual-download').hidden = false;
+            stopScan(); $('scan-meta').textContent = `${completed.filename} · ${size(completed.bytes.length)} · checksum verified`;
+            status('scan', 'received', 'success');
+          }
+        } catch (error) {
+          if (!receiver.transfer) { packetState = null; $('scan-progress-area').hidden = true; $('scan-meta').textContent = ''; }
+          status('scan', error.message, 'error');
+        }
       }
       animation = requestAnimationFrame(scan);
     } catch (error) {
@@ -992,7 +1171,7 @@ onmessage = async ({data}) => {
     if (document.hidden && (transmission || $('visual-file').disabled)) stopShow('Paused because this page was hidden. Click show file to restart.');
     if (!document.hidden && (stream || transmission)) keepAwake();
   });
-  window.addEventListener('pagehide', () => { stopShow(); stopScan(); if (downloadURL) URL.revokeObjectURL(downloadURL); });
+  window.addEventListener('pagehide', () => { ReceivedPreview.clear('scan-image'); stopShow(); stopScan(); if (downloadURL) URL.revokeObjectURL(downloadURL); });
 })();
 
 </script>

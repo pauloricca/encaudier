@@ -129,3 +129,64 @@ test('recalibrates after the camera moves and after the sender changes density',
   const changed = C.decodeImage(camera(second.frame(0)), original.corners);
   assert.equal(changed?.packet?.density, 80);
 });
+
+// One camera image containing independently calibrated, phase-offset barcodes.
+function cameraGrid(grids, {skew = false, mirror = false, cover = -1} = {}) {
+  const columns = Math.ceil(Math.sqrt(grids.length)), rows = Math.ceil(grids.length / columns);
+  const density = Math.sqrt(grids[0].length), tile = density + 6, sceneWidth = tile * columns, sceneHeight = tile * rows;
+  const width = 960, height = 960;
+  const screen = skew ? [[100, 50], [915, 120], [870, 920], [30, 850]] : [[25, 25], [935, 25], [935, 935], [25, 935]];
+  const inverse = C.homography(screen, [[0, 0], [sceneWidth, 0], [sceneWidth, sceneHeight], [0, sceneHeight]]);
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const [u, v] = inverse(mirror ? width - x - 1 : x, y);
+    const column = Math.floor(u / tile), row = Math.floor(v / tile), slot = row * columns + column;
+    const localX = Math.floor(u - column * tile - 3), localY = Math.floor(v - row * tile - 3);
+    const inside = u >= 0 && v >= 0 && u < sceneWidth && v < sceneHeight;
+    const black = inside && slot !== cover && slot < grids.length && localX >= 0 && localY >= 0 && localX < density && localY < density && grids[slot][localY * density + localX];
+    const level = inside ? black ? 20 : 230 : 70;
+    const i = (y * width + x) * 4; data[i] = data[i + 1] = data[i + 2] = level; data[i + 3] = 255;
+  }
+  return {width, height, data};
+}
+test('phase offsets are evenly distributed, wrap, and handle fewer packets than codes', () => {
+  assert.deepEqual([...C.frameIndices(0, 100, 4)], [0, 25, 50, 75]);
+  assert.deepEqual([...C.frameIndices(99, 100, 4)], [99, 24, 49, 74]);
+  assert.deepEqual([...C.frameIndices(0, 101, 4)], [0, 25, 50, 75]);
+  assert.deepEqual([...C.frameIndices(0, 2, 4)], [0, 0, 1, 1]);
+  for (const codes of [0, 10, 1.5]) assert.throws(() => C.frameIndices(0, 100, codes), /codes/);
+});
+for (const count of [2, 4, 6, 9]) for (const skew of [false, true]) {
+  test(`decodes all ${count} codes in one camera image${skew ? ' with perspective' : ''}`, () => {
+    const sender = C.encode(new Uint8Array(12000).map((_, i) => i & 255), 'multi.bin', 555);
+    const indices = [...C.frameIndices(0, sender.count, count)];
+    const found = C.decodeImages(cameraGrid(indices.map(index => sender.frame(index)), {skew})).filter(item => item.packet);
+    assert.deepEqual(Array.from(found, item => item.packet.index).sort((a, b) => a - b), indices.sort((a, b) => a - b));
+    const nextIndices = [...C.frameIndices(1, sender.count, count)];
+    const tracked = C.decodeImages(cameraGrid(nextIndices.map(index => sender.frame(index)), {skew}), found.map(item => item.corners), false).filter(item => item.packet);
+    assert.deepEqual(Array.from(tracked, item => item.packet.index).sort((a, b) => a - b), nextIndices.sort((a, b) => a - b));
+  });
+}
+test('tracks multiple mirrored codes, recovers after one is obscured, and completes a transfer', () => {
+  const sender = C.encode(payload, 'grid.bin', 801), receiver = new C.Receiver();
+  let previous = [], result;
+  for (let frame = 0; frame < sender.count; frame++) {
+    const indices = C.frameIndices(frame, sender.count, 4);
+    const found = C.decodeImages(cameraGrid(indices.map(index => sender.frame(index)), {skew: true, mirror: true, cover: frame === 0 ? 1 : -1}), previous);
+    const valid = found.filter(item => item.packet); assert.ok(valid.length >= 3);
+    previous = valid.map(item => item.corners);
+    for (const item of valid) result = receiver.accept(item.packet);
+    if (result.bytes) break;
+  }
+  assert.deepEqual(Buffer.from(result.bytes), Buffer.from(payload));
+});
+test('packet map membership records exact out-of-order positions and ignores duplicates', () => {
+  const sender = C.encode(new Uint8Array(21000), 'map.bin', 999), receiver = new C.Receiver();
+  const positions = [0, 24, 50, 75];
+  let result;
+  for (const index of positions) result = receiver.accept(readGrid(sender.frame(index)));
+  assert.equal(result.received, 4);
+  assert.deepEqual([...result.seen].flatMap((seen, i) => seen ? [i] : []), positions);
+  assert.equal(receiver.accept(readGrid(sender.frame(24))).received, 4);
+  assert.equal(result.seen[25], 0);
+});

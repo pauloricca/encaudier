@@ -6,6 +6,7 @@ page = (root / 'index.template.html').read_text()
 for marker, file, attributes in [
     ('WORKER_SOURCE', 'modem-worker.js', 'id="worker-source" type="text/plain"'),
     ('VISUAL_CODEC_SOURCE', 'visual-codec.js', ''),
+    ('RECEIVED_PREVIEW_SOURCE', 'received-preview.js', ''),
     ('APP_SOURCE', 'app.js', ''),
     ('VISUAL_APP_SOURCE', 'visual-app.js', ''),
 ]:
